@@ -1,0 +1,13 @@
+@media (max-width: 768px) {
+    .adaptive-hide {
+        display: none;
+    }
+    .adaptive-width {
+        min-width: 100%;
+        margin: auto;
+        flex-basis: auto;
+    }
+    .adaptive-input-width {
+        width: 99% !important;
+    }
+}

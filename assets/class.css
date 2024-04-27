@@ -1,0 +1,14 @@
+.full-height {
+    height: 100vh; /* Fallback for browsers that do not support Custom Properties */
+    height: calc(var(--vh, 1vh) * 100);
+    /* margin: auto; */
+    /* min-height: 100vh; */
+    overflow: hidden;
+}
+
+.child-height-100 div {
+    height: 100%;
+}
+.child-autoheight div {
+    height: unset !important;
+}
