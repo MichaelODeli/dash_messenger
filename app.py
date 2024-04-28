@@ -22,8 +22,8 @@ temp_buttons = dmc.Group([
     html.A(
         "Мессенджер",
         style={"width": "content"},
-        className='btn btn-primary btn-sm',
-        href='/im',
+        className='btn btn-primary disabled btn-sm',
+        href='/messenger/im',
     ),
     html.A(
         "Управление аккаунтом",
@@ -80,20 +80,20 @@ header = dbc.Navbar(
     color="dark",
     dark=True,
     style={'width': '100%'},
-    className='border-bottom fit-content roww'
+    className='border-bottom roww fit-content'
 )
 
 main_container = dmc.Grid(
     [
         dmc.Col(span=1, className='adaptive-hide'),
         # dmc.Col([dash.page_container], span=10, className='border border-top-0 adaptive-width', h='100%'),
-        dmc.Col(dash.page_container, span=10, className='adaptive-width child-height-100', mah='100%'),
+        dmc.Col(dash.page_container, span=10, className='adaptive-width child-height-100', h='100%'),
         dmc.Col(span=1, className='adaptive-hide'),
     ],
     align='center',
-    className='adaptive-width fill-remain roww',
+    className='roww fill-remain',
     # className='adaptive-width',
-    mah='100%',
+    h='100%',
     p='0',
 )
 
