@@ -45,7 +45,7 @@ def layout():
 
     main_tab = dmc.Stack(
         [
-            html.H4("Основные настройки аккаунта"),
+            html.H5("Основные настройки аккаунта"),
             dmc.Grid(
                 [
                     dmc.Col(

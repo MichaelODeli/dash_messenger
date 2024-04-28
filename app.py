@@ -22,8 +22,8 @@ temp_buttons = dmc.Group([
     html.A(
         "Мессенджер",
         style={"width": "content"},
-        className='btn btn-primary disabled btn-sm',
-        href='/messenger/im',
+        className='btn btn-primary btn-sm',
+        href='/im',
     ),
     html.A(
         "Управление аккаунтом",

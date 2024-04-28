@@ -1,0 +1,41 @@
+.leftside-msg .user-icon {
+    width: 32px;
+    margin: 15px;
+    color: black;
+}
+
+.leftside-msg-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 100%;
+    position: relative;
+}
+
+.leftside-message-time {
+    position: absolute;
+    color: var(--bs-secondary-text-emphasis) !important;
+    top: 0;
+    right: 0;
+    padding: 0 5px 5px 0;
+}
+
+.tr-hover:hover {
+    background-color: rgba(var(--bs-emphasis-color-rgb), 0.075);
+}
+
+.table>:not(caption)>*>* {
+    padding: 0;
+}
+
+.transp-back {
+    background-color: transparent !important;
+}
+
+
+
+.selected-tr {
+    background-color: rgba(var(--bs-emphasis-color-rgb), 0.1);
+}
