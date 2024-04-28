@@ -1,5 +1,5 @@
 .mantine-Tabs-tab[data-active] {
-    background-color: var(--bs-body-color) !important;
+    background-color: var(--bs-primary) !important;
 }
 
 .mantine-Tabs-tab[data-active] .tabs-content-colors {
