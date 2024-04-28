@@ -26,7 +26,7 @@ def layout():
     email_input = html.Div(
         [
             dbc.Label("Электронная почта", html_for="example-email"),
-            dbc.Input(type="email", id="example-email", placeholder="Введите email"),
+            dbc.Input(type="email", id="auth-email", placeholder="Введите email"),
         ],
         className="mb-3",
     )
@@ -36,7 +36,7 @@ def layout():
             dbc.Label("Пароль", html_for="example-password"),
             dbc.Input(
                 type="password",
-                id="example-password",
+                id="auth-password",
                 placeholder="Введите пароль",
             ),
         ],
@@ -47,44 +47,85 @@ def layout():
         [
             dmc.Grid(
                 [
-                    dmc.Col(span=6, className='adaptive-hide'),
-                    dmc.Col([
-                        dmc.Stack(
-                            [
-                                dbc.Card(
-                                    [
-                                        html.H4("Dash Messenger", className='text-center'),
-                                        html.H5("Основан на технологии WebSocket", className='text-center'),
-                                        dmc.Space(h=10),
-                                        dbc.Form([
-                                            email_input, 
-                                            password_input,
-                                            dbc.Button("Войти в аккаунт", style={'width': '100%'})
-                                        ], style={'width': '65%', 'margin': 'auto'}, class_name='adaptive-input-width'),
-                                    ],
-                                    style={'width': '100%', 'padding': '20px'}
-                                ),
-                                dbc.Card(
-                                    dmc.Stack(
+                    dmc.Col(
+                        [
+                            dbc.Card(
+                                [html.P("Блок с полезной информацией", className="text-center", style={'margin': 'auto'})],
+                                style={"width": "100%", "height": "100%"},
+                            )
+                        ],
+                        span=6,
+                        className="adaptive-hide",
+                    ),
+                    dmc.Col(
+                        [
+                            dmc.Stack(
+                                [
+                                    dbc.Card(
                                         [
-                                            html.H5("Нет аккаунта или забыли пароль?", className='text-center'),
-                                            dbc.Button("Создать аккаунт", style={'width': 'content'}),
-                                            dbc.Button("Восстановить пароль", style={'width': 'content'}),
+                                            html.H4(
+                                                "Dash Messenger",
+                                                className="text-center pb-1",
+                                            ),
+                                            html.H5(
+                                                "Основан на технологии WebSocket",
+                                                className="text-center pb-2",
+                                            ),
+                                            dmc.Space(h=10),
+                                            dbc.Form(
+                                                [
+                                                    email_input,
+                                                    password_input,
+                                                    dbc.Button(
+                                                        "Войти в аккаунт",
+                                                        style={"width": "100%"},
+                                                    ),
+                                                ],
+                                                style={
+                                                    "width": "65%",
+                                                    "margin": "auto",
+                                                },
+                                                class_name="adaptive-input-width",
+                                            ),
                                         ],
-                                        align='center'
+                                        style={"width": "100%", "padding": "20px"},
                                     ),
-                                    style={'width': '100%', 'padding': '20px'}
-                                ),
-                            ]
-                        )
-                    ], span=6, className='adaptive-width'),
+                                    dbc.Card(
+                                        dmc.Stack(
+                                            [
+                                                html.H5(
+                                                    "Нет аккаунта или забыли пароль?",
+                                                    className="text-center",
+                                                ),
+                                                html.A(
+                                                    "Создать аккаунт",
+                                                    style={"width": "content"},
+                                                    href='/auth/register',
+                                                    className='btn btn-primary'
+                                                ),
+                                                html.A(
+                                                    "Восстановить пароль",
+                                                    style={"width": "content"},
+                                                    href='/auth/recovery',
+                                                    className='btn btn-primary'
+                                                ),
+                                            ],
+                                            align="center",
+                                        ),
+                                        style={"width": "100%", "padding": "20px"},
+                                    ),
+                                ]
+                            )
+                        ],
+                        span=6,
+                        className="adaptive-width",
+                    ),
                 ],
-                style={'width': '100%'}
+                style={"width": "100%"},
             ),
         ],
         align="center",
         # justify="center",
         h="100%",
-        pt='10vh',
-        className="child-autoheight",
+        pt="10vh",
     )

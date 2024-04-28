@@ -1,14 +1,7 @@
-.full-height {
-    height: 100vh; /* Fallback for browsers that do not support Custom Properties */
-    height: calc(var(--vh, 1vh) * 100);
-    /* margin: auto; */
-    /* min-height: 100vh; */
-    overflow: hidden;
+p, h1, h2, h3, h4, h5, h6 {
+    margin-bottom: 0;
 }
 
-.child-height-100 div {
-    height: 100%;
-}
-.child-autoheight div {
-    height: unset !important;
+.custom-border-color {
+    border-color: rgb(222, 226, 230) !important;
 }

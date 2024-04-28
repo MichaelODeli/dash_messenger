@@ -1,3 +1,12 @@
 .dash-debug-menu__outer, .dash-debug-menu {
     display: none !important;
 }
+
+.mantine-Grid-root {
+    margin: 0;
+    height: auto;
+}
+
+#_pages_content {
+    height: 100%;
+}

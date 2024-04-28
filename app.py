@@ -18,6 +18,21 @@ app = dash.Dash(
     external_scripts=["/assets/size.js"],
 )
 
+temp_buttons = dmc.Group([
+    html.A(
+        "Мессенджер",
+        style={"width": "content"},
+        className='btn btn-primary disabled btn-sm',
+        href='/messenger/im',
+    ),
+    html.A(
+        "Управление аккаунтом",
+        style={"width": "content"},
+        className='btn btn-primary btn-sm',
+        href='/account/manage'
+    ),
+], pr='10px')
+
 # 
 # static layout
 # 
@@ -41,7 +56,7 @@ header = dbc.Navbar(
             dbc.Collapse(
                 dbc.Row(
                     [
-                        # dbc.Col(dbc.Input(type="search", placeholder="Search")),
+                        dbc.Col(temp_buttons),
                         dbc.Col(
                             html.Span(
                                 [
@@ -65,7 +80,7 @@ header = dbc.Navbar(
     color="dark",
     dark=True,
     style={'width': '100%'},
-    className='border-bottom'
+    className='border-bottom roww fit-content'
 )
 
 main_container = dmc.Grid(
@@ -76,7 +91,8 @@ main_container = dmc.Grid(
         dmc.Col(span=1, className='adaptive-hide'),
     ],
     align='center',
-    className='adaptive-width',
+    className='roww fill-remain',
+    # className='adaptive-width',
     h='100%',
     p='0',
 )
@@ -90,8 +106,8 @@ app.layout = dmc.Container(
     miw='100%',
     maw='100%',
     p='0',
-    className='full-height'
-    # style={'minWidth': '100% !important'}
+    className='full-height boxx'
+    # className='full-height'
 )
 
 # add callback for toggling the collapse on small screens
