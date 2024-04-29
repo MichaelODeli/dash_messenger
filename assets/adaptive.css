@@ -1,6 +1,6 @@
 @media (max-width: 768px) {
     .adaptive-hide {
-        display: none;
+        display: none !important;
     }
     .adaptive-width {
         min-width: 100%;
@@ -10,6 +10,12 @@
     .adaptive-input-width {
         width: 99% !important;
     }
+}
+
+@media (min-width: 768px) {
+  .adaptive-show {
+    display: none;
+  }
 }
 
 .boxx {

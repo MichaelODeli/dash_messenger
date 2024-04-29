@@ -1,14 +1,15 @@
-# 
+#
 # Import libs
-# 
+#
 import dash
-from dash import html, Output, Input, State, callback, dcc, clientside_callback
+from dash import html, Output, Input, State, callback, dcc, clientside_callback, no_update
 import dash_mantine_components as dmc
 import dash_bootstrap_components as dbc
 
-# 
+#
 # app config
-# 
+#
+dash._dash_renderer._set_react_version('18.2.0')
 app = dash.Dash(
     __name__,
     use_pages=True,
@@ -18,24 +19,27 @@ app = dash.Dash(
     external_scripts=["/assets/size.js"],
 )
 
-temp_buttons = dmc.Group([
-    html.A(
-        "Мессенджер",
-        style={"width": "content"},
-        className='btn btn-primary btn-sm',
-        href='/im',
-    ),
-    html.A(
-        "Управление аккаунтом",
-        style={"width": "content"},
-        className='btn btn-primary btn-sm',
-        href='/account/manage'
-    ),
-], pr='10px')
+temp_buttons = dmc.Group(
+    [
+        html.A(
+            "Мессенджер",
+            style={"width": "content"},
+            className="btn btn-primary btn-sm",
+            href="/im",
+        ),
+        html.A(
+            "Управление аккаунтом",
+            style={"width": "content"},
+            className="btn btn-primary btn-sm",
+            href="/account/manage",
+        ),
+    ],
+    pr="10px",
+)
 
-# 
+#
 # static layout
-# 
+#
 header = dbc.Navbar(
     dbc.Container(
         [
@@ -60,9 +64,22 @@ header = dbc.Navbar(
                         dbc.Col(
                             html.Span(
                                 [
-                                    dbc.Label(className="fa fa-moon", html_for="color-mode-switch", color='secondary'),
-                                    dbc.Switch(id="color-mode-switch", value=True, className="d-inline-block ms-1", persistence=True),
-                                    dbc.Label(className="fa fa-sun", html_for="color-mode-switch", color='secondary'), 
+                                    dbc.Label(
+                                        className="fa fa-moon",
+                                        html_for="color-mode-switch",
+                                        color="secondary",
+                                    ),
+                                    dbc.Switch(
+                                        id="color-mode-switch",
+                                        value=True,
+                                        className="d-inline-block ms-1",
+                                        persistence=True,
+                                    ),
+                                    dbc.Label(
+                                        className="fa fa-sun",
+                                        html_for="color-mode-switch",
+                                        color="secondary",
+                                    ),
                                 ]
                             ),
                             width="auto",
@@ -79,36 +96,43 @@ header = dbc.Navbar(
     ),
     color="dark",
     dark=True,
-    style={'width': '100%'},
-    className='border-bottom roww fit-content'
+    style={"width": "100%"},
+    className="border-bottom roww fit-content",
 )
 
 main_container = dmc.Grid(
     [
-        dmc.Col(span=1, className='adaptive-hide'),
-        # dmc.Col([dash.page_container], span=10, className='border border-top-0 adaptive-width', h='100%'),
-        dmc.Col(dash.page_container, span=10, className='adaptive-width child-height-100', h='100%'),
-        dmc.Col(span=1, className='adaptive-hide'),
+        dmc.GridCol(span=1, className="adaptive-hide"),
+        # dmc.GridCol([dash.page_container], span=10, className='border border-top-0 adaptive-width', h='100%'),
+        dmc.GridCol(
+            dash.page_container,
+            span=10,
+            className="adaptive-width child-height-100",
+            h="100%",
+        ),
+        dmc.GridCol(span=1, className="adaptive-hide"),
     ],
-    align='center',
-    className='roww fill-remain',
+    align="center",
+    className="roww fill-remain",
     # className='adaptive-width',
-    h='100%',
-    p='0',
+    h="100%",
+    p="0",
 )
 
 
-app.layout = dmc.Container(
-    [
-        header,
-        main_container
-    ],
-    miw='100%',
-    maw='100%',
-    p='0',
-    className='full-height boxx'
-    # className='full-height'
+app.layout = dmc.MantineProvider(
+    dmc.Container(
+        [header, main_container],
+        miw="100%",
+        maw="100%",
+        p="0",
+        className="full-height boxx",
+        # className='full-height'
+    ),
+    id='mantine_theme',
+    defaultColorScheme='light'
 )
+
 
 # add callback for toggling the collapse on small screens
 @app.callback(
@@ -120,6 +144,14 @@ def toggle_navbar_collapse(n, is_open):
     if n:
         return not is_open
     return is_open
+
+@callback(
+    Output("mantine_theme", "forceColorScheme"),
+    Input("color-mode-switch", "value")
+)
+def make_mantine_theme(value):
+    return 'dark' if value == False else 'light'
+
 
 clientside_callback(
     """
@@ -141,8 +173,9 @@ app.config.suppress_callback_exceptions = True
 dev = True
 
 if __name__ == "__main__":
-    if dev: 
+    if dev:
         app.run_server(debug=True, host="0.0.0.0", port=82)
-    else: 
+    else:
         from waitress import serve
+
         serve(app.server, host="0.0.0.0", port=82)

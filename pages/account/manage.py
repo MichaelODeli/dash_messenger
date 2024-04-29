@@ -48,7 +48,7 @@ def layout():
             html.H5("Основные настройки аккаунта"),
             dmc.Grid(
                 [
-                    dmc.Col(
+                    dmc.GridCol(
                         [
                             dbc.Card(
                                 dmc.Stack(
@@ -96,7 +96,7 @@ def layout():
                                         ),
                                     ],
                                     align="center",
-                                    spacing="xs",
+                                    gap="xs",
                                 ),
                                 class_name="h-100 w-100 p-3",
                             )
@@ -104,18 +104,6 @@ def layout():
                         span=6,
                         className="adaptive-width",
                     ),
-                    # dmc.Col(
-                    #     [
-                    #         dbc.Card(
-                    #             dmc.Stack(
-                    #                 [html.H5("Смена пароля аккаунта")], align="center"
-                    #             ),
-                    #             class_name="h-100 w-100 p-3",
-                    #         )
-                    #     ],
-                    #     span=6,
-                    #     className="adaptive-width",
-                    # ),
                 ],
                 w="100%",
                 justify='center'
@@ -134,7 +122,7 @@ def layout():
                 [
                     dmc.TabsList(
                         [
-                            dmc.Tab(
+                            dmc.TabsTab(
                                 dmc.Group(
                                     [
                                         DashIconify(
@@ -145,16 +133,16 @@ def layout():
                                         ),
                                         html.P(
                                             "Основные",
-                                            className="fs-5 text-strong tabs-content-colors",
+                                            className="fs-6 text-strong tabs-content-colors",
                                             style={"color": "var(--bs-body-color)"},
                                         ),
                                     ],
-                                    spacing="xs",
+                                    gap="xs",
                                 ),
                                 value="main_tab",
-                                className="p-2",
+                                className="p-2 manage-tab",
                             ),
-                            dmc.Tab(
+                            dmc.TabsTab(
                                 dmc.Group(
                                     [
                                         DashIconify(
@@ -165,17 +153,17 @@ def layout():
                                         ),
                                         html.P(
                                             "Приватность",
-                                            className="fs-5 text-strong tabs-content-colors",
+                                            className="fs-6 text-strong tabs-content-colors",
                                             style={"color": "var(--bs-body-color)"},
                                         ),
                                     ],
-                                    spacing="xs",
+                                    gap="xs",
                                 ),
                                 value="privacy_tab",
-                                className="p-2",
-                                disabled=True
+                                className="p-2 manage-tab",
+                                # disabled=True
                             ),
-                            dmc.Tab(
+                            dmc.TabsTab(
                                 dmc.Group(
                                     [
                                         DashIconify(
@@ -186,15 +174,15 @@ def layout():
                                         ),
                                         html.P(
                                             "Справочный центр",
-                                            className="fs-5 text-strong tabs-content-colors",
+                                            className="fs-6 text-strong tabs-content-colors",
                                             style={"color": "var(--bs-body-color)"},
                                         ),
                                     ],
-                                    spacing="xs",
+                                    gap="xs",
                                 ),
                                 value="help_tab",
-                                className="p-2",
-                                disabled=True
+                                className="p-2 manage-tab",
+                                # disabled=True
                             ),
                         ],
                         grow=True,

@@ -1,0 +1,14 @@
+.mantine-Grid-inner {
+    height: 100%;
+    margin: 0;
+    width: 100%;
+}
+
+.mantine-ScrollArea-viewport {
+    padding-bottom: 0;
+}
+
+.mantine-Grid-root {
+    margin: 0;
+    height: auto;
+}

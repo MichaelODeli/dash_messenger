@@ -47,7 +47,7 @@ def layout():
         [
             dmc.Grid(
                 [
-                    dmc.Col(
+                    dmc.GridCol(
                         [
                             dbc.Card(
                                 [html.P("Блок с полезной информацией", className="text-center", style={'margin': 'auto'})],
@@ -55,9 +55,9 @@ def layout():
                             )
                         ],
                         span=6,
-                        className="adaptive-hide",
+                        className="adaptive-hide h-100",
                     ),
-                    dmc.Col(
+                    dmc.GridCol(
                         [
                             dmc.Stack(
                                 [
@@ -100,14 +100,14 @@ def layout():
                                                 html.A(
                                                     "Создать аккаунт",
                                                     style={"width": "content"},
-                                                    href='/auth/register',
-                                                    className='btn btn-primary'
+                                                    href="/auth/register",
+                                                    className="btn btn-primary",
                                                 ),
                                                 html.A(
                                                     "Восстановить пароль",
                                                     style={"width": "content"},
-                                                    href='/auth/recovery',
-                                                    className='btn btn-primary'
+                                                    href="/auth/recovery",
+                                                    className="btn btn-primary",
                                                 ),
                                             ],
                                             align="center",
@@ -125,7 +125,7 @@ def layout():
             ),
         ],
         align="center",
-        # justify="center",
+        justify="center",
         h="100%",
-        pt="10vh",
+        # pt="10vh",
     )

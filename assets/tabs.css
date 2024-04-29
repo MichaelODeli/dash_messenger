@@ -1,8 +1,8 @@
-.mantine-Tabs-tab[data-active] {
+.mantine-Tabs-tab[data-active].manage-tab {
     background-color: var(--bs-primary) !important;
 }
 
-.mantine-Tabs-tab[data-active] .tabs-content-colors {
+.mantine-Tabs-tab[data-active].manage-tab .tabs-content-colors {
     color: var(--bs-body-bg) !important;
 }
 
