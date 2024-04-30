@@ -6,3 +6,6 @@
     color: var(--bs-body-bg) !important;
 }
 
+.hmin-100 {
+    min-height: 100%;
+}

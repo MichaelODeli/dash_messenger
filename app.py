@@ -2,21 +2,33 @@
 # Import libs
 #
 import dash
-from dash import html, Output, Input, State, callback, dcc, clientside_callback, no_update
+from dash import (
+    html,
+    Output,
+    Input,
+    State,
+    callback,
+    dcc,
+    clientside_callback,
+    no_update,
+)
 import dash_mantine_components as dmc
 import dash_bootstrap_components as dbc
 
 #
 # app config
 #
-dash._dash_renderer._set_react_version('18.2.0')
+dash._dash_renderer._set_react_version("18.2.0")
 app = dash.Dash(
     __name__,
     use_pages=True,
     external_stylesheets=[dbc.themes.ZEPHYR, dbc.icons.FONT_AWESOME],
     title="Dash Messenger",
     update_title="Dash Messenger 🔄️",
-    external_scripts=["/assets/size.js"],
+    external_scripts=[
+        "/assets/size.js",
+        "https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js",
+    ],
 )
 
 temp_buttons = dmc.Group(
@@ -129,8 +141,8 @@ app.layout = dmc.MantineProvider(
         className="full-height boxx",
         # className='full-height'
     ),
-    id='mantine_theme',
-    defaultColorScheme='light'
+    id="mantine_theme",
+    defaultColorScheme="light",
 )
 
 
@@ -145,12 +157,12 @@ def toggle_navbar_collapse(n, is_open):
         return not is_open
     return is_open
 
+
 @callback(
-    Output("mantine_theme", "forceColorScheme"),
-    Input("color-mode-switch", "value")
+    Output("mantine_theme", "forceColorScheme"), Input("color-mode-switch", "value")
 )
 def make_mantine_theme(value):
-    return 'dark' if value == False else 'light'
+    return "dark" if value == False else "light"
 
 
 clientside_callback(

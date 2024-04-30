@@ -12,3 +12,8 @@
     margin: 0;
     height: auto;
 }
+
+.mantine-Tabs-tab {
+    border-bottom-right-radius: 0px;
+    border-top-right-radius: 0px;
+}
