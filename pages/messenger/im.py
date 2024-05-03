@@ -28,11 +28,8 @@ register_page(
 )
 
 
-def get_icon(icon_name, width):
-    return DashIconify(
-        icon=icon_name,
-        width=width,
-    )
+def get_icon(icon_name, width, style=None):
+    return DashIconify(icon=icon_name, width=width, style=style)
 
 
 def get_leftside_contacts(
@@ -103,20 +100,45 @@ def get_message_tr(
 
 
 def layout():
-    chats_threedots_menu = dbc.Popover(
-        dbc.ButtonGroup(
-            [
-                dbc.Button("Создать беседу", color="primary", outline=True),
-                dbc.Button("Добавить контакт", color="primary", outline=True),
-            ],
-            vertical=True,
-            class_name="w-100",
-        ),
-        body=True,
-        target="chats-threedots-menu-open",
-        trigger="hover",
-        placement="bottom",
-        id="popover",
+    chats_threedots_menu = dmc.HoverCard(
+        position="bottom",
+        withArrow=True,
+        width=200,
+        shadow="md",
+        children=[
+            dmc.HoverCardTarget(
+                dbc.Button(
+                    get_icon(
+                        icon_name="mdi:dots-horizontal",
+                        width=25,
+                    ),
+                    outline=True,
+                    color="primary",
+                    id="messenger-btn-contacts_actions",
+                    class_name="p-1",
+                ),
+            ),
+            dmc.HoverCardDropdown(
+                dbc.ButtonGroup(
+                    [
+                        dbc.Button(
+                            "Создать беседу",
+                            color="primary",
+                            outline=True,
+                            id="messenger-btn-create_chat",
+                        ),
+                        dbc.Button(
+                            "Добавить контакт",
+                            color="primary",
+                            outline=True,
+                            id="messenger-btn-add_contact",
+                        ),
+                    ],
+                    vertical=True,
+                    class_name="w-100",
+                ),
+            ),
+        ],
     )
 
     contacts = dmc.Stack(
@@ -129,17 +151,6 @@ def layout():
                     dmc.GridCol(
                         [
                             chats_threedots_menu,
-                            dbc.Button(
-                                get_icon(
-                                    icon_name="mdi:dots-horizontal",
-                                    width=25,
-                                ),
-                                outline=True,
-                                color="primary",
-                                # style={"padding": "var(--bs-btn-padding-y)"},
-                                id="chats-threedots-menu-open",
-                                class_name="p-1 adaptive-hide",
-                            ),
                         ],
                         span="content",
                     ),
@@ -160,6 +171,7 @@ def layout():
                     ],
                     className="w-100 pe-1 mb-0",
                     hover=True,
+                    id="messenger-table-contacts",
                 ),
                 mah="100%",
                 type="auto",
@@ -174,54 +186,192 @@ def layout():
         gap=0,
     )
 
+    attachment_bar = dmc.HoverCard(
+        closeDelay=300,
+        position="top",
+        withArrow=True,
+        width=400,
+        shadow="md",
+        children=[
+            dmc.HoverCardTarget(
+                dbc.Button(
+                    get_icon("mdi:paperclip", width=20),
+                    class_name="adaptive-hide no-rounded",
+                    id="messenger-btn-attachment_actions",
+                )
+            ),
+            dmc.HoverCardDropdown(
+                dmc.Tabs(
+                    [
+                        dmc.TabsPanel(
+                            dmc.Stack(
+                                [
+                                    # html.H5("Стикеры", className='text-center pb-2'),
+                                    html.Div(
+                                        dbc.Table(
+                                            [
+                                                html.Tr(
+                                                    [
+                                                        html.Td(
+                                                            html.Center(
+                                                                html.Img(
+                                                                    src="/assets/user_icon.png",
+                                                                    style={
+                                                                        "height": "50px"
+                                                                    },
+                                                                    className="pt-1 pb-1",
+                                                                )
+                                                            ),
+                                                            className="tr-hover",
+                                                        )
+                                                    ]
+                                                    * 4
+                                                )
+                                            ]
+                                            * 7,
+                                            style={"box-shadow": "unset"},
+                                            class_name="background-0",
+                                            id="messenger-table-stickers",
+                                        ),
+                                        style={
+                                            "max-height": "290px",
+                                            "overflow-y": "auto",
+                                            "margin": "auto",
+                                            "width": "100%",
+                                        },
+                                    )
+                                ],
+                                justify="center",
+                            ),
+                            value="stickers",
+                            className="border border-bottom-0 p-2",
+                            h=300,
+                        ),
+                        dmc.TabsPanel(
+                            dmc.Stack(
+                                [
+                                    dbc.ButtonGroup(
+                                        [
+                                            dbc.Button(
+                                                "Отправить фото",
+                                                color="primary",
+                                                outline=True,
+                                                id="messenger-btn-attachment_photo",
+                                            ),
+                                            dbc.Button(
+                                                "Отправить видео",
+                                                color="primary",
+                                                outline=True,
+                                                id="messenger-btn-attachment_video",
+                                            ),
+                                            dbc.Button(
+                                                "Отправить файл",
+                                                color="primary",
+                                                outline=True,
+                                                id="messenger-btn-attachment_file",
+                                            ),
+                                        ],
+                                        vertical=True,
+                                        class_name="w-100 m-auto d-flex",
+                                    ),
+                                ],
+                                justify="center",
+                                className="d-flex w-100 h-100",
+                            ),
+                            value="attachments",
+                            className="border border-bottom-0 p-2",
+                            h=300,
+                        ),
+                        dmc.TabsList(
+                            [
+                                dmc.TabsTab(
+                                    get_icon("mdi:paperclip", width=20),
+                                    value="attachments",
+                                ),
+                                dmc.TabsTab(
+                                    get_icon("bx:smile", width=20), value="stickers"
+                                ),
+                            ],
+                            justify="center",
+                        ),
+                    ],
+                    orientation="horizontal",
+                    inverted=True,
+                    w="100%",
+                    h="100%",
+                    value="stickers",
+                    variant="outline",
+                )
+            ),
+        ],
+    )
+
     text_input_bar = dmc.Group(
         [
             dbc.InputGroup(
                 [
                     DeferScript(src="/assets/scroll.js"),
-                    dbc.Input(placeholder="Cообщение", id="message-text"),
-                    dbc.Button(get_icon("mdi:paperclip", width=20), disabled=True),
-                    dbc.Button(get_icon("bx:smile", width=20), disabled=True),
-                    dbc.Button(get_icon("mdi:send", width=20), id="send-message"),
+                    dbc.Input(
+                        placeholder="Cообщение", id="messenger-input-message_text"
+                    ),
+                    attachment_bar,
+                    dbc.Button(get_icon("mdi:send", width=20), id="messenger-btn-send"),
                 ],
             ),
             dbc.Button(
                 get_icon("mdi:arrow-down", width=20),
-                # disabled=True,
                 id="downClick",
                 class_name="downClick",
             ),
         ],
-        style={'flex-wrap': 'nowrap'}
+        style={"flex-wrap": "nowrap"},
     )
 
-    msg_threedots_menu = dbc.Popover(
-        dbc.ButtonGroup(
-            [
+    msg_threedots_menu = dmc.HoverCard(
+        position="bottom",
+        withArrow=True,
+        width=270,
+        shadow="md",
+        children=[
+            dmc.HoverCardTarget(
                 dbc.Button(
-                    "Отключить уведомления",
+                    get_icon(
+                        icon_name="mdi:dots-horizontal",
+                        width=25,
+                    ),
+                    outline=True,
                     color="primary",
-                    outline=True,
-                    id="messenger-toggle-notif",
+                    id="messenger-btn-chat_actions",
+                    class_name="p-1",
                 ),
-                dbc.Button(
-                    "Удалить чат",
-                    color="danger",
-                    outline=True,
-                    id="messenger-delete-chat",
+            ),
+            dmc.HoverCardDropdown(
+                dbc.ButtonGroup(
+                    [
+                        dbc.Button(
+                            "Отключить уведомления",
+                            color="primary",
+                            outline=True,
+                            id="messenger-btn-toggle_notif",
+                        ),
+                        dbc.Button(
+                            "Удалить чат",
+                            color="danger",
+                            outline=True,
+                            id="messenger-btn-delete_chat",
+                        ),
+                        dbc.Button(
+                            "Заблокировать",
+                            color="danger",
+                            outline=True,
+                            id="messenger-btn-ban",
+                        ),
+                    ],
+                    vertical=True,
+                    class_name="w-100",
                 ),
-                dbc.Button(
-                    "Заблокировать", color="danger", outline=True, id="messenger-ban"
-                ),
-            ],
-            vertical=True,
-            class_name="w-100",
-        ),
-        body=True,
-        target="msg-threedots-menu-open",
-        trigger="hover",
-        placement="bottom",
-        id="popover",
+            ),
+        ],
     )
 
     messages = dmc.Stack(
@@ -237,8 +387,7 @@ def layout():
                                 ),
                                 outline=True,
                                 color="primary",
-                                # style={"padding": "var(--bs-btn-padding-y)"},
-                                id="open-contacts-drawer",
+                                id="messenger-btn-open_contacts_drawer",
                                 class_name="p-1",
                             ),
                             span="content",
@@ -251,8 +400,13 @@ def layout():
                                         src="/assets/user_icon.png",
                                         className="transp-back user-icon",
                                         style={"height": "32px"},
+                                        id="messenger-img-chat_partner",
                                     ),
-                                    html.H5("MotherOfGod", className="m-0"),
+                                    html.H5(
+                                        "MotherOfGod",
+                                        className="m-0",
+                                        id="messenger-text-chat_partner_nickname",
+                                    ),
                                 ]
                             ),
                             span="auto",
@@ -260,17 +414,6 @@ def layout():
                         ),
                         dmc.GridCol(
                             [
-                                dbc.Button(
-                                    get_icon(
-                                        icon_name="mdi:dots-horizontal",
-                                        width=25,
-                                    ),
-                                    outline=True,
-                                    color="primary",
-                                    # style={"padding": "var(--bs-btn-padding-y)"},
-                                    id="msg-threedots-menu-open",
-                                    class_name="p-1",
-                                ),
                                 msg_threedots_menu,
                             ],
                             span="content",
@@ -294,7 +437,7 @@ def layout():
                             className="w-100 pe-1 mb-0 cover",
                             highlightOnHover=True,
                             striped=False,
-                            id="messages-table",
+                            id="messenger-table-messages",
                         )
                     ],
                     type="auto",
@@ -309,7 +452,6 @@ def layout():
             ),
         ],
         w="100%",
-        # h='90%',
         className="boxx",
         gap=0,
     )
@@ -319,18 +461,13 @@ def layout():
             dmc.Drawer(
                 dmc.Stack(
                     [
-                        # dbc.Alert(
-                        #     "Редактирование списка чатов доступно только с ПК",
-                        #     color="warning",
-                        #     class_name='m-0'
-                        # ),
                         contacts,
                     ],
                     className="w-100",
                     gap=0,
                 ),
                 title=html.H5("Список контактов"),
-                id="drawer-contacts",
+                id="messenger-messenger-drawer-contacts",
                 padding="md",
                 zIndex=10,
                 size="90%",
@@ -342,7 +479,7 @@ def layout():
                         span=3,
                         mih="100%",
                         p=0,
-                        className="d-flex adaptive-hide",  # temp
+                        className="d-flex adaptive-hide",
                     ),
                     dmc.GridCol(
                         messages,
@@ -350,13 +487,12 @@ def layout():
                         style={
                             "margin-bottom": "auto !important",
                         },
-                        h="100%",
-                        className=" adaptive-width mt-0 p-0 mb-auto",
+                        h="90dvh",  # DO NOT CHANGE!!! Breaks phone width
+                        className="adaptive-width mt-0 p-0 mb-auto",
                     ),
                 ],
                 w="100%",
                 h="100%",
-                # className="border",
                 m="auto",
             ),
         ],
@@ -377,24 +513,9 @@ def click_handle(n_clicks):
 
 
 @callback(
-    Output("drawer-contacts", "opened"),
-    Input("open-contacts-drawer", "n_clicks"),
+    Output("messenger-drawer-contacts", "opened"),
+    Input("messenger-btn-open_contacts_drawer", "n_clicks"),
     prevent_initial_call=True,
 )
 def drawer_contacts(n_clicks):
     return True
-
-
-@callback(
-    Output("popover", "is_open"),
-    [
-        Input("messenger-toggle-notif", "n_clicks"),
-        Input("messenger-ban", "n_clicks"),
-        Input("messenger-delete-chat", "n_clicks"),
-    ],
-    [State("popover", "is_open")],
-)
-def toggle_popover(n1, n2, n3, is_open):
-    if n1 or n2 or n3:
-        return not is_open
-    return is_open

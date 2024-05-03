@@ -39,3 +39,7 @@
 .selected-tr {
     background-color: rgba(var(--bs-emphasis-color-rgb), 0.1);
 }
+
+.background-0 {
+    background-color: transparent !important;
+}
