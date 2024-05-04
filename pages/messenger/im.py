@@ -501,7 +501,7 @@ def layout():
                         style={
                             "margin-bottom": "auto !important",
                         },
-                        h="90dvh",  # DO NOT CHANGE!!! Breaks phone width
+                        h="87dvh",  # DO NOT CHANGE!!! Breaks phone width
                         className="adaptive-width mt-0 p-0 mb-auto",
                     ),
                 ],
