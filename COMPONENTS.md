@@ -57,5 +57,12 @@
     - `messenger-img-chat_partner` - аватарка собеседника
 - **Вывод текста**
     - `messenger-text-chat_partner_nickname` - ник собеседника
+### Модалки
+- `messenger-modal-add_contact` - **добавление контактов**
+    - `messenger-input-add_contact_nickname` - ввод никнейма
+    - `messenger-btn-confirm_add_contact` - подтверждение добавления контакта
+- `messenger-modal-delete_chat` - **подтверждение удаления диалога**
+    - `messenger-btn-confirm_delete_chat-yes` - да
+    - `messenger-btn-confirm_delete_chat-no` - нет
 
 # Функции - генераторы элементов

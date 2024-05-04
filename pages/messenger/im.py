@@ -19,6 +19,7 @@ import dash_bootstrap_components as dbc
 from dash_iconify import DashIconify
 from dash_extensions import DeferScript
 import random
+from pages.messenger import im_modals
 
 register_page(
     __name__,
@@ -100,6 +101,13 @@ def get_message_tr(
 
 
 def layout():
+    modals = html.Div(
+        [
+            im_modals.messenger_modal_addcontact(),
+            im_modals.messenger_modal_deletechat()
+        ]
+    )
+
     chats_threedots_menu = dmc.HoverCard(
         position="bottom",
         withArrow=True,
@@ -126,6 +134,7 @@ def layout():
                             color="primary",
                             outline=True,
                             id="messenger-btn-create_chat",
+                            disabled=True
                         ),
                         dbc.Button(
                             "Добавить контакт",
@@ -187,6 +196,7 @@ def layout():
     )
 
     attachment_bar = dmc.HoverCard(
+        disabled=True,
         closeDelay=300,
         position="top",
         withArrow=True,
@@ -198,6 +208,7 @@ def layout():
                     get_icon("mdi:paperclip", width=20),
                     class_name="adaptive-hide no-rounded",
                     id="messenger-btn-attachment_actions",
+                    disabled=True
                 )
             ),
             dmc.HoverCardDropdown(
@@ -353,6 +364,7 @@ def layout():
                             color="primary",
                             outline=True,
                             id="messenger-btn-toggle_notif",
+                            disabled=True
                         ),
                         dbc.Button(
                             "Удалить чат",
@@ -365,6 +377,7 @@ def layout():
                             color="danger",
                             outline=True,
                             id="messenger-btn-ban",
+                            disabled=True
                         ),
                     ],
                     vertical=True,
@@ -458,6 +471,7 @@ def layout():
 
     return dmc.Stack(
         [
+            modals,
             dmc.Drawer(
                 dmc.Stack(
                     [
@@ -519,3 +533,7 @@ def click_handle(n_clicks):
 )
 def drawer_contacts(n_clicks):
     return True
+
+# modal callbacks
+im_modals.messenger_modal_addcontact_callback()
+im_modals.messenger_modal_deletechat_callback()

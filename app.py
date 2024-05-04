@@ -115,7 +115,6 @@ header = dbc.Navbar(
 main_container = dmc.Grid(
     [
         dmc.GridCol(span=1, className="adaptive-hide"),
-        # dmc.GridCol([dash.page_container], span=10, className='border border-top-0 adaptive-width', h='100%'),
         dmc.GridCol(
             dash.page_container,
             span=10,
@@ -126,7 +125,6 @@ main_container = dmc.Grid(
     ],
     align="center",
     className="roww fill-remain",
-    # className='adaptive-width',
     h="100%",
     p="0",
 )
@@ -139,7 +137,6 @@ app.layout = dmc.MantineProvider(
         maw="100%",
         p="0",
         className="full-height boxx",
-        # className='full-height'
     ),
     id="mantine_theme",
     defaultColorScheme="light",
