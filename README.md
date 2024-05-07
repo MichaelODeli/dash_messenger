@@ -1,3 +1,5 @@
+# Разработка приостановлена.
+
 # dash_messenger
 Мессенджер на технологии Websocket.
 Этот проект является прямым продолжением [dash_websocket-chatrooms](https://github.com/MichaelODeli/dash_websocket-chatrooms). Только более масштабная реализация)
@@ -24,7 +26,7 @@
     - [dash-mantine-components (0.14.x)](https://www.dash-mantine-components.com/)
     - [dash-iconify](https://www.dash-mantine-components.com/dash-iconify)
     - [dash-extensions](https://www.dash-extensions.com/)
-- *🔄️ Backend [Quart](https://quart.palletsprojects.com/) или [WebSockets](websockets.readthedocs.io)*
+- *🔄️ Backend [Quart](https://quart.palletsprojects.com/) или [WebSockets](https://websockets.readthedocs.io)*
 
 ## Планируемые возможности
 - Обмен сообщениями через Websocket в двустороннем канале
@@ -83,9 +85,9 @@
 1. **Соединение сервера и webUI**
 
 ## Установка и использование
-### Нативная установка
-> [!IMPORTANT]
-> Раздел наполняется
 ### Установка через docker-compose
 1. `docker-compose build`
 1. `docker-compose up`
+### Ссылки на части проекта
+- **webui** - [localhost:82](http://localhost:82)
+- **База данных** - localhost:6543 (db - `messenger`, login:password - `postgres`/`postgres`)
