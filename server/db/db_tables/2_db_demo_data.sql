@@ -6,29 +6,29 @@ insert into "users" ("username","email","password") values ('et','Orlo98@gmail.c
 insert into "users" ("username","email","password") values ('test','test@test.com','test');
 
 
-insert into "conversations" ("conversation_name", "personal") values ('personal', true);
-insert into "conversations" ("conversation_name", "personal") values ('personal', true);
-insert into "conversations" ("conversation_name", "personal") values ('personal', true);
-insert into "conversations" ("conversation_name", "personal") values ('personal', true);
+insert into "chats" ("chat_name", "personal") values ('personal', true);
+insert into "chats" ("chat_name", "personal") values ('personal', true);
+insert into "chats" ("chat_name", "personal") values ('personal', true);
+insert into "chats" ("chat_name", "personal") values ('personal', true);
 
 
-insert into "conversation_members" ("conversation_id", "user_id") values (1, 6);
-insert into "conversation_members" ("conversation_id", "user_id") values (1, 5);
-insert into "conversation_members" ("conversation_id", "user_id") values (2, 6);
-insert into "conversation_members" ("conversation_id", "user_id") values (2, 4);
+insert into "chat_members" ("chat_id", "user_id") values (1, 6);
+insert into "chat_members" ("chat_id", "user_id") values (1, 5);
+insert into "chat_members" ("chat_id", "user_id") values (2, 6);
+insert into "chat_members" ("chat_id", "user_id") values (2, 4);
 
 
-insert into "messages" ("from_id", "conversation_id", "content") values (5, 1, 'hello');
-insert into "messages" ("from_id", "conversation_id", "content") values (6, 1, 'same hello');
-insert into "messages" ("from_id", "conversation_id", "content") values (5, 1, 'hello');
-insert into "messages" ("from_id", "conversation_id", "content") values (6, 1, 'same hello');
-insert into "messages" ("from_id", "conversation_id", "content") values (5, 1, 'hello');
-insert into "messages" ("from_id", "conversation_id", "content") values (6, 1, 'same hello');
+insert into "messages" ("from_id", "chat_id", "content") values (5, 1, 'hello');
+insert into "messages" ("from_id", "chat_id", "content") values (6, 1, 'same hello');
+insert into "messages" ("from_id", "chat_id", "content") values (5, 1, 'hello');
+insert into "messages" ("from_id", "chat_id", "content") values (6, 1, 'same hello');
+insert into "messages" ("from_id", "chat_id", "content") values (5, 1, 'hello');
+insert into "messages" ("from_id", "chat_id", "content") values (6, 1, 'same hello');
 
 
-insert into "messages" ("from_id", "conversation_id", "content") values (4, 2, 'hello');
-insert into "messages" ("from_id", "conversation_id", "content") values (6, 2, 'same hello');
-insert into "messages" ("from_id", "conversation_id", "content") values (4, 2, 'hello');
-insert into "messages" ("from_id", "conversation_id", "content") values (6, 2, 'same hello');
-insert into "messages" ("from_id", "conversation_id", "content") values (4, 2, 'hello');
-insert into "messages" ("from_id", "conversation_id", "content") values (6, 2, 'same hello');
+insert into "messages" ("from_id", "chat_id", "content") values (4, 2, 'hello');
+insert into "messages" ("from_id", "chat_id", "content") values (6, 2, 'same hello');
+insert into "messages" ("from_id", "chat_id", "content") values (4, 2, 'hello');
+insert into "messages" ("from_id", "chat_id", "content") values (6, 2, 'same hello');
+insert into "messages" ("from_id", "chat_id", "content") values (4, 2, 'hello');
+insert into "messages" ("from_id", "chat_id", "content") values (6, 2, 'same hello');

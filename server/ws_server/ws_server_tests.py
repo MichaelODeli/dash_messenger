@@ -88,11 +88,6 @@ app.layout = dmc.MantineProvider(
                     dbc.Input(
                         placeholder="token", id="lo-token", style={"width": "200px"}
                     ),
-                    # dbc.Input(
-                    #     placeholder="username",
-                    #     id="lo-username",
-                    #     style={"width": "200px"},
-                    # ),
                     dbc.Button(
                         "Выйти", id="lo", style={"margin-left": "auto"}
                     ),
@@ -109,7 +104,7 @@ app.layout = dmc.MantineProvider(
                         placeholder="token", id="gc-token", style={"width": "200px"}
                     ),
                     dbc.Button(
-                        "Чаты", id="gc", style={"margin-left": "auto"}, disabled=True
+                        "Чаты", id="gc", style={"margin-left": "auto"}
                     ),
                 ],
                 w="100%",
@@ -130,7 +125,6 @@ app.layout = dmc.MantineProvider(
                         "Сообщения в чате",
                         id="gm",
                         style={"margin-left": "auto"},
-                        disabled=True,
                     ),
                 ],
                 w="100%",
@@ -215,6 +209,13 @@ app.layout = dmc.MantineProvider(
     ),
 )
 
+def get_outputs_for_mode(mode, msg_data):
+    modes = ['auth', 'register', 'logout', 'getChats', 'getMessages', 'sendMessage', 'sendGroupMessage']
+    return [
+        (str(msg_data) if msg_data != None else no_update) if mode == mode_element else no_update
+        for mode_element in modes
+    ]
+
 
 # получение результатов и обновление соответствующих объектов
 @app.callback(
@@ -237,14 +238,19 @@ def message(state, error, message, stored_token):
     token = stored_token
     if message != None:
         msg_data = ast.literal_eval(message["data"])
+        outputs = get_outputs_for_mode(msg_data["mode"], msg_data)
+
         if msg_data["mode"] == "auth":
+            # save token if success
             if msg_data["status"] == "200":
                 token = msg_data["token"]
         elif msg_data["mode"] == "logout":
+            # reset stored token
             if msg_data["status"] == "200":
                 token = None
     else:
         msg_data = None
+        outputs = [no_update] * 7
 
     return (
         [
@@ -258,8 +264,7 @@ def message(state, error, message, stored_token):
                 ]
             ),
         ]
-        + [str(msg_data) if msg_data != None else no_update]
-        + [no_update] * 6
+        + outputs
     )
 
 
@@ -304,7 +309,6 @@ def rg(n_clicks, username, email, password):
     Output("lo-resp", "children"),
     Output("ws", "send", allow_duplicate=True),
     Input("lo", "n_clicks"),
-    # State("lo-username", "value"),
     State("lo-token", "value"),
     prevent_initial_call=True,
 )
@@ -330,7 +334,13 @@ def lo(n_clicks, token):
 def gc(n_clicks, token):
     if token == None:
         return "No data provided", no_update
-    return [no_update] * 2
+    else:
+        message_structure = {
+            "mode": "getChats",
+            "timestamp": None,
+            "token": token
+        }
+        return no_update, str(message_structure)
 
 
 @app.callback(
@@ -344,7 +354,14 @@ def gc(n_clicks, token):
 def gm(n_clicks, token, chat_id):
     if None in [chat_id, token]:
         return "No data provided", no_update
-    return [no_update] * 2
+    else:
+        message_structure = {
+            "mode": "getMessages",
+            "timestamp": None,
+            "token": token,
+            "chat_id": chat_id
+        }
+        return no_update, str(message_structure)
 
 
 @app.callback(
