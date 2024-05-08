@@ -43,7 +43,8 @@ create table "tokens" (
   "token" varchar(255) not null,
   "user_id" INTEGER not null,
   "status" varchar(25) not null,
-  "updated_at" timestamp not null default NOW(),
+  "created_at" timestamp not null default NOW(),
   "valid_until" timestamp not null,
-  FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+  FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+  UNIQUE(token)
 );

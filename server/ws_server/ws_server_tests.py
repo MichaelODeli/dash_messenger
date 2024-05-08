@@ -88,13 +88,13 @@ app.layout = dmc.MantineProvider(
                     dbc.Input(
                         placeholder="token", id="lo-token", style={"width": "200px"}
                     ),
-                    dbc.Input(
-                        placeholder="username",
-                        id="lo-username",
-                        style={"width": "200px"},
-                    ),
+                    # dbc.Input(
+                    #     placeholder="username",
+                    #     id="lo-username",
+                    #     style={"width": "200px"},
+                    # ),
                     dbc.Button(
-                        "Выйти", id="lo", style={"margin-left": "auto"}, disabled=True
+                        "Выйти", id="lo", style={"margin-left": "auto"}
                     ),
                 ],
                 w="100%",
@@ -240,6 +240,9 @@ def message(state, error, message, stored_token):
         if msg_data["mode"] == "auth":
             if msg_data["status"] == "200":
                 token = msg_data["token"]
+        elif msg_data["mode"] == "logout":
+            if msg_data["status"] == "200":
+                token = None
     else:
         msg_data = None
 
@@ -301,14 +304,20 @@ def rg(n_clicks, username, email, password):
     Output("lo-resp", "children"),
     Output("ws", "send", allow_duplicate=True),
     Input("lo", "n_clicks"),
-    State("lo-username", "value"),
+    # State("lo-username", "value"),
     State("lo-token", "value"),
     prevent_initial_call=True,
 )
-def lo(n_clicks, username, token):
-    if None in [username, token]:
+def lo(n_clicks, token):
+    if None in [token]:
         return "No data provided", no_update
-    return [no_update] * 2
+    else:
+        message_structure = {
+            "mode": "logout",
+            "timestamp": None,
+            "token": token
+        }
+        return no_update, str(message_structure)
 
 
 @app.callback(
