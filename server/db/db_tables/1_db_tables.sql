@@ -2,12 +2,12 @@
 
 create table "users" (
   "id" serial primary key,
-  "nickname" varchar(255) not null,
+  "username" varchar(255) not null,
   "email" varchar(255) not null,
   "password" varchar(255) not null,
   "created_at" timestamp not null default NOW(),
   "updated_at" timestamp not null default NOW(),
-  UNIQUE(nickname),
+  UNIQUE(username),
   UNIQUE(email)
 );
 
@@ -44,6 +44,6 @@ create table "tokens" (
   "user_id" INTEGER not null,
   "status" varchar(25) not null,
   "updated_at" timestamp not null default NOW(),
-  "valid_until" timestamp not null default NOW()+5,
+  "valid_until" timestamp not null,
   FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );

@@ -1,9 +1,9 @@
-insert into "users" ("nickname","email","password") values ('est','Randy_Bins@hotmail.com','id');
-insert into "users" ("nickname","email","password") values ('perspiciatis','Bo80@gmail.com','rerum');
-insert into "users" ("nickname","email","password") values ('omnis','Antwan_Fahey98@hotmail.com','cumque');
-insert into "users" ("nickname","email","password") values ('dolorem','Zion.Bauch@hotmail.com','enim');
-insert into "users" ("nickname","email","password") values ('et','Orlo98@gmail.com','et');
-insert into "users" ("nickname","email","password") values ('testers','test@test.com','test');
+insert into "users" ("username","email","password") values ('est','Randy_Bins@hotmail.com','id');
+insert into "users" ("username","email","password") values ('perspiciatis','Bo80@gmail.com','rerum');
+insert into "users" ("username","email","password") values ('omnis','Antwan_Fahey98@hotmail.com','cumque');
+insert into "users" ("username","email","password") values ('dolorem','Zion.Bauch@hotmail.com','enim');
+insert into "users" ("username","email","password") values ('et','Orlo98@gmail.com','et');
+insert into "users" ("username","email","password") values ('test','test@test.com','test');
 
 
 insert into "conversations" ("conversation_name", "personal") values ('personal', true);
