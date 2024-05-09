@@ -13,6 +13,13 @@ import dash_mantine_components as dmc
 import dash_bootstrap_components as dbc
 from dash_extensions import WebSocket
 import ast
+import datetime
+
+def get_current_date_str(plus5days=False):
+    "Получить текущую дату в формате ГГГГ-ММ-ДД ЧЧ:ММ:СС"
+    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    now_plus5days = (datetime.datetime.now() + datetime.timedelta(days=5)).strftime("%Y-%m-%d %H:%M:%S")
+    return now_plus5days if plus5days else now
 
 dash._dash_renderer._set_react_version("18.2.0")
 app = dash.Dash(
@@ -74,7 +81,6 @@ app.layout = dmc.MantineProvider(
                         "Зарегаться",
                         id="rg",
                         style={"margin-left": "auto"},
-                        disabled=True,
                     ),
                 ],
                 w="100%",
@@ -158,7 +164,6 @@ app.layout = dmc.MantineProvider(
                         "Отправить",
                         id="sm",
                         style={"margin-left": "auto"},
-                        disabled=True,
                     ),
                 ],
                 w="100%",
@@ -240,13 +245,17 @@ def message(state, error, message, stored_token):
         msg_data = ast.literal_eval(message["data"])
         outputs = get_outputs_for_mode(msg_data["mode"], msg_data)
 
-        if msg_data["mode"] == "auth":
+        if msg_data["mode"] == "auth" or msg_data["mode"] == "register":
             # save token if success
             if msg_data["status"] == "200":
                 token = msg_data["token"]
         elif msg_data["mode"] == "logout":
             # reset stored token
             if msg_data["status"] == "200":
+                token = None
+        else:
+            # reset invalid token
+            if msg_data["status"] == "401":
                 token = None
     else:
         msg_data = None
@@ -283,7 +292,7 @@ def a(n_clicks, username, password):
     else:
         message_structure = {
             "mode": "auth",
-            "timestamp": None,
+            "timestamp": get_current_date_str(),
             "username": username,
             "password": password,
         }
@@ -302,7 +311,15 @@ def a(n_clicks, username, password):
 def rg(n_clicks, username, email, password):
     if None in [username, email, password]:
         return "No data provided", no_update
-    return [no_update] * 2
+    else:
+        message_structure = {
+            "mode": "register",
+            "timestamp": get_current_date_str(),
+            "username": username,
+            "email": email,
+            'password': password
+        }
+        return no_update, str(message_structure)
 
 
 @app.callback(
@@ -318,7 +335,7 @@ def lo(n_clicks, token):
     else:
         message_structure = {
             "mode": "logout",
-            "timestamp": None,
+            "timestamp": get_current_date_str(),
             "token": token
         }
         return no_update, str(message_structure)
@@ -337,7 +354,7 @@ def gc(n_clicks, token):
     else:
         message_structure = {
             "mode": "getChats",
-            "timestamp": None,
+            "timestamp": get_current_date_str(),
             "token": token
         }
         return no_update, str(message_structure)
@@ -357,7 +374,7 @@ def gm(n_clicks, token, chat_id):
     else:
         message_structure = {
             "mode": "getMessages",
-            "timestamp": None,
+            "timestamp": get_current_date_str(),
             "token": token,
             "chat_id": chat_id
         }
@@ -377,7 +394,16 @@ def gm(n_clicks, token, chat_id):
 def sm(n_clicks, token, chat_id, content, content_type):
     if None in [chat_id, token, content, content_type]:
         return "No data provided", no_update
-    return [no_update] * 2
+    else:
+        message_structure = {
+            "mode": "sendMessage",
+            "timestamp": get_current_date_str(),
+            "token": token,
+            "chat_id": chat_id,
+            'content': content,
+            'content_type': content_type
+        }
+        return no_update, str(message_structure)
 
 
 @app.callback(
