@@ -14,12 +14,17 @@ import dash_bootstrap_components as dbc
 from dash_extensions import WebSocket
 import ast
 import datetime
+from flask import request
+
 
 def get_current_date_str(plus5days=False):
     "Получить текущую дату в формате ГГГГ-ММ-ДД ЧЧ:ММ:СС"
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    now_plus5days = (datetime.datetime.now() + datetime.timedelta(days=5)).strftime("%Y-%m-%d %H:%M:%S")
+    now_plus5days = (datetime.datetime.now() + datetime.timedelta(days=5)).strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
     return now_plus5days if plus5days else now
+
 
 dash._dash_renderer._set_react_version("18.2.0")
 app = dash.Dash(
@@ -36,10 +41,29 @@ app = dash.Dash(
 app.layout = dmc.MantineProvider(
     dmc.Stack(
         [
-            WebSocket(url="ws://127.0.0.1:5000/ws", id="ws"),
+            WebSocket(url=f"ws://192.168.3.36:5000/ws", id="ws"),
+            dcc.Interval(
+                id="load_interval",
+                n_intervals=0,
+                max_intervals=0,  # <-- only run once
+                interval=1,
+            ),
             dcc.Store(id="token-store", storage_type="local"),
             html.H3("Отладка методов WebSocket", className="text-center pb-2"),
-            html.Div(id="ws-status"),
+            dmc.Accordion(
+                children=[
+                    dmc.AccordionItem(
+                        [
+                            dmc.AccordionControl(
+                                html.H4("ws-status", className="mb-0")
+                            ),
+                            dmc.AccordionPanel(html.Div(id="ws-status")),
+                        ],
+                        value="1",
+                    ),
+                ],
+                chevronPosition='left'
+            ),
             dmc.Divider(),
             dmc.Group(
                 [
@@ -94,9 +118,7 @@ app.layout = dmc.MantineProvider(
                     dbc.Input(
                         placeholder="token", id="lo-token", style={"width": "200px"}
                     ),
-                    dbc.Button(
-                        "Выйти", id="lo", style={"margin-left": "auto"}
-                    ),
+                    dbc.Button("Выйти", id="lo", style={"margin-left": "auto"}),
                 ],
                 w="100%",
                 align="center",
@@ -105,13 +127,38 @@ app.layout = dmc.MantineProvider(
             dmc.Divider(),
             dmc.Group(
                 [
+                    html.H4("createPersonalChat", className="mb-0"),
+                    dbc.Input(
+                        placeholder="token", id="cpc-token", style={"width": "200px"}
+                    ),
+                    dbc.Input(
+                        placeholder="contact_value",
+                        id="cpc-contactvalue",
+                        style={"width": "200px"},
+                    ),
+                    dbc.Select(
+                        id="cpc-contactmode",
+                        options=[
+                            {"label": "id", "value": "id"},
+                            {"label": "username", "value": "username"},
+                        ],
+                        value="id",
+                        style={"width": "200px"},
+                    ),
+                    dbc.Button("Новый чат", id="cpc", style={"margin-left": "auto"}),
+                ],
+                w="100%",
+                align="center",
+            ),
+            html.Div(id="cpc-resp"),
+            dmc.Divider(),
+            dmc.Group(
+                [
                     html.H4("getChats", className="mb-0"),
                     dbc.Input(
                         placeholder="token", id="gc-token", style={"width": "200px"}
                     ),
-                    dbc.Button(
-                        "Чаты", id="gc", style={"margin-left": "auto"}
-                    ),
+                    dbc.Button("Чаты", id="gc", style={"margin-left": "auto"}),
                 ],
                 w="100%",
                 align="center",
@@ -214,12 +261,33 @@ app.layout = dmc.MantineProvider(
     ),
 )
 
+
 def get_outputs_for_mode(mode, msg_data):
-    modes = ['auth', 'register', 'logout', 'getChats', 'getMessages', 'sendMessage', 'sendGroupMessage']
+    modes = [
+        "auth",
+        "register",
+        "logout",
+        "createPersonalChat",
+        "getChats",
+        "getMessages",
+        "sendMessage",
+        "sendGroupMessage",
+    ]
     return [
-        (str(msg_data) if msg_data != None else no_update) if mode == mode_element else no_update
+        (
+            (str(msg_data) if msg_data != None else no_update)
+            if mode == mode_element
+            else no_update
+        )
         for mode_element in modes
     ]
+
+
+# update websocket server ip
+@app.callback([Output("ws", "url"), Input("load_interval", "n_intervals")])
+def url_update(n_intervals):
+    hostname = request.headers.get("Host").split(":")[0]
+    return [f"ws://{hostname}:5000/ws"]
 
 
 # получение результатов и обновление соответствующих объектов
@@ -230,6 +298,7 @@ def get_outputs_for_mode(mode, msg_data):
         Output("a-resp", "children", allow_duplicate=True),
         Output("rg-resp", "children", allow_duplicate=True),
         Output("lo-resp", "children", allow_duplicate=True),
+        Output("cpc-resp", "children", allow_duplicate=True),
         Output("gc-resp", "children", allow_duplicate=True),
         Output("gm-resp", "children", allow_duplicate=True),
         Output("sm-resp", "children", allow_duplicate=True),
@@ -243,38 +312,40 @@ def message(state, error, message, stored_token):
     token = stored_token
     if message != None:
         msg_data = ast.literal_eval(message["data"])
-        outputs = get_outputs_for_mode(msg_data["mode"], msg_data)
-
-        if msg_data["mode"] == "auth" or msg_data["mode"] == "register":
-            # save token if success
-            if msg_data["status"] == "200":
-                token = msg_data["token"]
-        elif msg_data["mode"] == "logout":
-            # reset stored token
-            if msg_data["status"] == "200":
-                token = None
+        
+        if 'mode' not in list(msg_data.keys()):
+            print(msg_data)
+            outputs =  [no_update] * 8
         else:
-            # reset invalid token
-            if msg_data["status"] == "401":
-                token = None
+            outputs = get_outputs_for_mode(msg_data["mode"], msg_data)
+
+            if msg_data["mode"] == "auth" or msg_data["mode"] == "register":
+                # save token if success
+                if msg_data["status"] == "200":
+                    token = msg_data["token"]
+            elif msg_data["mode"] == "logout":
+                # reset stored token
+                if msg_data["status"] == "200":
+                    token = None
+            else:
+                # reset invalid token
+                if msg_data["status"] == "401":
+                    token = None
     else:
         msg_data = None
-        outputs = [no_update] * 7
+        outputs = [no_update] * 8
 
-    return (
-        [
-            token,
-            dmc.Stack(
-                [
-                    dcc.Markdown(f"**state**: {state}"),
-                    dcc.Markdown(f"**error**: {error}"),
-                    dcc.Markdown(f"**message**: {message}"),
-                    dcc.Markdown(f"**token**: {token}"),
-                ]
-            ),
-        ]
-        + outputs
-    )
+    return [
+        token,
+        dmc.Stack(
+            [
+                dcc.Markdown(f"**state**: {state}"),
+                dcc.Markdown(f"**error**: {error}"),
+                dcc.Markdown(f"**message**: {message}"),
+                dcc.Markdown(f"**token**: {token}"),
+            ]
+        ),
+    ] + outputs
 
 
 # опрос форм и формирование итоговых запросов
@@ -317,7 +388,7 @@ def rg(n_clicks, username, email, password):
             "timestamp": get_current_date_str(),
             "username": username,
             "email": email,
-            'password': password
+            "password": password,
         }
         return no_update, str(message_structure)
 
@@ -336,7 +407,30 @@ def lo(n_clicks, token):
         message_structure = {
             "mode": "logout",
             "timestamp": get_current_date_str(),
-            "token": token
+            "token": token,
+        }
+        return no_update, str(message_structure)
+
+
+@app.callback(
+    Output("cpc-resp", "children"),
+    Output("ws", "send", allow_duplicate=True),
+    Input("cpc", "n_clicks"),
+    State("cpc-token", "value"),
+    State("cpc-contactvalue", "value"),
+    State("cpc-contactmode", "value"),
+    prevent_initial_call=True,
+)
+def cpc(n_clicks, token, contact_value, contact_mode):
+    if None in [token, contact_value, contact_mode]:
+        return "No data provided", no_update
+    else:
+        message_structure = {
+            "mode": "createPersonalChat",
+            "timestamp": get_current_date_str(),
+            "token": token,
+            "contact_value": contact_value,
+            "contact_mode": contact_mode,
         }
         return no_update, str(message_structure)
 
@@ -355,7 +449,7 @@ def gc(n_clicks, token):
         message_structure = {
             "mode": "getChats",
             "timestamp": get_current_date_str(),
-            "token": token
+            "token": token,
         }
         return no_update, str(message_structure)
 
@@ -376,7 +470,7 @@ def gm(n_clicks, token, chat_id):
             "mode": "getMessages",
             "timestamp": get_current_date_str(),
             "token": token,
-            "chat_id": chat_id
+            "chat_id": chat_id,
         }
         return no_update, str(message_structure)
 
@@ -400,8 +494,8 @@ def sm(n_clicks, token, chat_id, content, content_type):
             "timestamp": get_current_date_str(),
             "token": token,
             "chat_id": chat_id,
-            'content': content,
-            'content_type': content_type
+            "content": content,
+            "content_type": content_type,
         }
         return no_update, str(message_structure)
 

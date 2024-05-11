@@ -10,4 +10,6 @@ RUN --mount=type=cache,target=C:/Windows/Temp \
 
 COPY . .
 
+ENV AM_I_IN_A_DOCKER_CONTAINER Yes
+
 CMD [ "python", "ws_server.py"]

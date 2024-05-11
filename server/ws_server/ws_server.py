@@ -2,9 +2,10 @@ from quart import websocket, Quart, abort
 import ast
 import datetime
 import psycopg2
-from psycopg2.errorcodes import UNIQUE_VIOLATION
+from psycopg2.errorcodes import UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION
 import uuid
 import traceback
+import os
 
 """
 Используемые функции
@@ -18,6 +19,10 @@ def db_connector(
     host="localhost",
     port="5432",
 ):
+    SECRET_KEY = os.environ.get("AM_I_IN_A_DOCKER_CONTAINER", False)
+    if SECRET_KEY:
+        host = "db"
+
     return psycopg2.connect(
         dbname=dbname, user=user, password=password, host=host, port=port
     )
@@ -66,6 +71,9 @@ def token_validation(conn, token, logout=False):
     Также тут будут удаляться старые (недействующие) токены других юзеров."""
 
     with conn.cursor() as cursor:
+        # # check token counts
+        # if token_count == 5:
+        #     raise AssertionError
         cursor.execute(
             "SELECT token FROM tokens WHERE token=%(token)s and valid_until >= %(now)s;",
             {"token": token, "now": get_current_date_str()},
@@ -120,6 +128,17 @@ def get_username_by_userid(conn, user_id):
         cursor.execute(
             "SELECT username FROM users WHERE id=%(user_id)s;",
             {"user_id": user_id},
+        )
+        result = cursor.fetchone()
+        return result[0] if result != None else None
+
+
+def get_userid_by_username(conn, user_name):
+    "Получение id пользователя по его нику"
+    with conn.cursor() as cursor:
+        cursor.execute(
+            "SELECT id FROM users WHERE username=%(user_name)s;",
+            {"user_name": user_name},
         )
         result = cursor.fetchone()
         return result[0] if result != None else None
@@ -285,6 +304,46 @@ def fileds_check(msg_dict, fields_list=None):
     return return_msg
 
 
+def createpersonalchat(conn, token, contact_value, contact_mode):
+    if contact_mode == "id":
+        contact_id = contact_value
+        user_id = get_userid_by_token(conn, token)
+    elif contact_mode == "username":
+        user_id = get_userid_by_token(conn, token)
+        contact_id = get_userid_by_username(conn, contact_value)
+    else:
+        raise ValueError
+
+    if None in [contact_id, user_id]:
+        return ["409", ""]
+    else:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                'INSERT INTO "chats" ("chat_name", "personal") values (%(chat_name)s, %(personal)s)',
+                {
+                    "chat_name": "personal",
+                    "personal": True,
+                },
+            )
+
+            # get chat_id
+            cursor.execute('SELECT MAX(id) FROM chats;')
+            chat_id = cursor.fetchone()[0]
+
+            # insert data to chat_members table
+            try:
+                for i in [contact_id, user_id]:
+                    cursor.execute(
+                        'INSERT INTO "chat_members" ("chat_id", "user_id") values (%(chat_id)s, %(user_id)s)',
+                        {"chat_id": chat_id, "user_id": i},
+                    )
+            except psycopg2.errors.lookup(FOREIGN_KEY_VIOLATION) as e:
+                return ["409", ""]
+
+            conn.commit()
+        return ["200", chat_id]  # success
+
+
 """
 Основная логика работы сервера
 
@@ -324,7 +383,7 @@ async def ws():
                     "token": token if correct_cred else None,
                 }
                 await websocket.send(str(new_msg_body))
-            if mode == "register":
+            elif mode == "register":
                 if fileds_check(msg_body, ["username", "password", "email"]) != None:
                     await websocket.send(
                         str(fileds_check(msg_body, ["username", "password", "email"]))
@@ -371,6 +430,39 @@ async def ws():
                     "timestamp": get_current_date_str(),
                     "status": "200" if success else "401",
                     "chats": chats if success else None,
+                }
+                await websocket.send(str(new_msg_body))
+            elif mode == "createPersonalChat":
+                if (
+                    fileds_check(msg_body, ["token", "contact_value", "contact_mode"])
+                    != None
+                ):
+                    await websocket.send(
+                        str(
+                            fileds_check(
+                                msg_body, ["token", "contact_value", "contact_mode"]
+                            )
+                        )
+                    )
+                if token_validation(conn, msg_body["token"]):
+                    success = True
+                    result = createpersonalchat(
+                        conn,
+                        msg_body["token"],
+                        msg_body["contact_value"],
+                        msg_body["contact_mode"],
+                    )
+                    result_code = result[0]
+                    chat_id = result[1]
+                else:
+                    success = False
+                    result_code = "401"
+                    chat_id = ""
+                new_msg_body = {
+                    "mode": "createPersonalChat",
+                    "timestamp": get_current_date_str(),
+                    "status": result_code,
+                    "chat_id": chat_id if result_code == "200" else None,
                 }
                 await websocket.send(str(new_msg_body))
             elif mode == "getMessages":
@@ -431,18 +523,19 @@ async def ws():
                     "timestamp": get_current_date_str(),
                     "status": code,
                 }
-                print(new_msg_body)
                 await websocket.send(str(new_msg_body))
             else:
                 await websocket.send(
                     str({"mode": mode, "timestamp": None, "status": "501"})
                 )
-        # except asyncio.CancelledError:
-        #     raise
+        except AssertionError:
+            await websocket.send(
+                str({"mode": mode, "timestamp": None, "status": "403"})
+            )
         except Exception as e:
             print(traceback.format_exc())
             return abort(500)
 
 
 if __name__ == "__main__":
-    app.run(port=5000)
+    app.run(port=5000, host="0.0.0.0")

@@ -21,6 +21,7 @@ services:
     restart: always
   
   ws_server:
+    hostname: ws
     ports:
       - 5000:5000
     build: ./server/ws_server/

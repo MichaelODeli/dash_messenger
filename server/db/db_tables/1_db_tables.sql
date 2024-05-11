@@ -34,6 +34,7 @@ create table "messages" (
 create table "chat_members" (
   "chat_id" integer not null,
   "user_id" integer not null,
+  "created_at" timestamp not null default NOW(),
   FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
   FOREIGN KEY (chat_id) REFERENCES chats (id) ON DELETE CASCADE
 );
