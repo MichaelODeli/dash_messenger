@@ -38,7 +38,19 @@ def get_current_date_str(plus5days=False):
 
 
 def cred_checker_with_token_generator(conn, username, password):
-    "Проверка учетных данных пользователя и выдача токена"
+    """
+    Проверка учетных данных пользователя и выдача токена
+    ---
+
+    Параметры:
+    - `conn` - подключение к БД PostgreSQL
+    - `username` - имя пользователя
+    - `password` - пароль от аккаунта
+
+    Вывод - `list[user_exist, token]`:
+    - user_exist (bool) - существование пользователя
+    - token (str) - авторизационный токен (при существовании пользователя)
+    """
     with conn.cursor() as cursor:
         # проверка существования пользователя в базе
         cursor.execute(
@@ -68,7 +80,12 @@ def cred_checker_with_token_generator(conn, username, password):
 
 def token_validation(conn, token, logout=False):
     """Проверка валидности токена. Валидный - срок действия продлевается.\n
-    Также тут будут удаляться старые (недействующие) токены других юзеров."""
+    Также тут будут удаляться старые (недействующие) токены других юзеров.
+
+
+    Параметры:
+    - `conn` - подключение к БД PostgreSQL
+    - `token` - авторизационный токен"""
 
     with conn.cursor() as cursor:
         # # check token counts
@@ -109,7 +126,12 @@ def token_validation(conn, token, logout=False):
 
 
 def get_userid_by_token(conn, token):
-    "Получение id пользователя по его токену"
+    """Получение id пользователя по его токену
+    ---
+
+    Параметры:
+    - `conn` - подключение к БД PostgreSQL
+    - `token` - авторизационный токен"""
     # if token_validation(conn, token):
     with conn.cursor() as cursor:
         cursor.execute(
@@ -123,7 +145,12 @@ def get_userid_by_token(conn, token):
 
 
 def get_username_by_userid(conn, user_id):
-    "Получение имени пользователя по его id"
+    """Получение имени пользователя по его id
+    ---
+
+    Параметры:
+    - `conn` - подключение к БД PostgreSQL
+    - `user_id` - идентификатор пользователя"""
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT username FROM users WHERE id=%(user_id)s;",
@@ -134,7 +161,12 @@ def get_username_by_userid(conn, user_id):
 
 
 def get_userid_by_username(conn, user_name):
-    "Получение id пользователя по его нику"
+    """Получение id пользователя по имени
+    ---
+
+    Параметры:
+    - `conn` - подключение к БД PostgreSQL
+    - `user_name` - имя пользователя"""
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT id FROM users WHERE username=%(user_name)s;",
@@ -145,7 +177,13 @@ def get_userid_by_username(conn, user_name):
 
 
 def check_user_membership(conn, user_id, chat_id):
-    "Проверка наличия юзера в чате"
+    """Проверка наличия пользователя в чате
+    ---
+
+    Параметры:
+    - `conn` - подключение к БД PostgreSQL
+    - `user_id` - идентификатор пользователя
+    - `chat_id` - идентификатор чата"""
     with conn.cursor() as cursor:
         cursor.execute(
             "select EXISTS(SELECT 1 FROM chat_members where chat_id = %(chat_id)s and user_id = %(user_id)s);",
@@ -155,7 +193,12 @@ def check_user_membership(conn, user_id, chat_id):
 
 
 def getchats(conn, token):
-    "Получение перечня чатов пользователя"
+    """Получение перечня чатов пользователя
+    ---
+
+    Параметры:
+    - `conn` - подключение к БД PostgreSQL
+    - `token` - авторизационный токен отправителя"""
     chats = []
     with conn.cursor() as cursor:
         user_id = get_userid_by_token(conn, token)
@@ -213,17 +256,24 @@ def getchats(conn, token):
             return None
 
 
-def getmessages(conn, token, chat_id):
-    "Получение перечня чатов пользователя"
+def getmessages(conn, token, chat_id, min_message_id):
+    """Получение сообщений в чате
+    ---
+
+    Параметры:
+    - `conn` - подключение к БД PostgreSQL
+    - `token` - авторизационный токен
+    - `chat_id` - идентификатор чата"""
     with conn.cursor() as cursor:
         messages = []
         user_id = get_userid_by_token(conn, token)
         if not check_user_membership(conn, user_id, chat_id):
             return "423"
         else:
+            # only 200 last messages
             cursor.execute(
-                "SELECT * FROM messages WHERE chat_id=%(chat_id)s;",
-                {"chat_id": chat_id},
+                "select * from (SELECT * FROM messages WHERE chat_id=%(chat_id)s and id > %(min_message_id)s order by created_at desc limit 200) as m order by id asc;",
+                {"chat_id": chat_id, "min_message_id": min_message_id},
             )
             for message_row in cursor.fetchall():
                 messages.append(
@@ -239,7 +289,15 @@ def getmessages(conn, token, chat_id):
 
 
 def sendmessage(conn, token, chat_id, content, content_type):
-    "Отправка сообщения пользователю"
+    """Отправка сообщения в чат
+    ---
+
+    Параметры:
+    - `conn` - подключение к БД PostgreSQL
+    - `token` - авторизационный токен
+    - `chat_id` - идентификатор чата
+    - `content` - контент
+    - `content_type` - тип контента (text/img/video)"""
     with conn.cursor() as cursor:
         user_id = get_userid_by_token(conn, token)
         if not check_user_membership(conn, user_id, chat_id):
@@ -262,6 +320,15 @@ def sendmessage(conn, token, chat_id, content, content_type):
 
 
 def register(conn, username, password, email):
+    """
+    Регистрация пользователя
+    ---
+
+    Параметры:
+    - `conn` - подключение к БД PostgreSQL
+    - `username` - имя пользователя
+    - `password` - пароль
+    - `email` - электронная почта"""
     with conn.cursor() as cursor:
         try:
             cursor.execute(
@@ -305,6 +372,16 @@ def fileds_check(msg_dict, fields_list=None):
 
 
 def createpersonalchat(conn, token, contact_value, contact_mode):
+    """
+    Создание персонального чата.
+    ---
+
+    Параметры:
+    - `conn` - подключение к БД PostgreSQL
+    - `token` - авторизационный токен отправителя
+    - `contact_value` - ник или id удаленного пользователя
+    - `contact_mode` - описание того, что указано в поле `contact_value`: `id` или `username`
+    """
     if contact_mode == "id":
         contact_id = contact_value
         user_id = get_userid_by_token(conn, token)
@@ -312,7 +389,7 @@ def createpersonalchat(conn, token, contact_value, contact_mode):
         user_id = get_userid_by_token(conn, token)
         contact_id = get_userid_by_username(conn, contact_value)
     else:
-        raise ValueError
+        raise ValueError('contact_mode not equals to "id" or "username"')
 
     if None in [contact_id, user_id]:
         return ["409", ""]
@@ -327,7 +404,7 @@ def createpersonalchat(conn, token, contact_value, contact_mode):
             )
 
             # get chat_id
-            cursor.execute('SELECT MAX(id) FROM chats;')
+            cursor.execute("SELECT MAX(id) FROM chats;")
             chat_id = cursor.fetchone()[0]
 
             # insert data to chat_members table
@@ -362,6 +439,7 @@ async def ws():
             msg_body = ast.literal_eval(msg)
             if fileds_check(msg_body) != None:
                 await websocket.send(str(fileds_check(msg_body)))
+            fields = list(msg_body.keys())
             mode = msg_body["mode"]
             if mode == "auth":
                 if fileds_check(msg_body, ["username", "password"]) != None:
@@ -472,7 +550,12 @@ async def ws():
                     )
                 if token_validation(conn, msg_body["token"]):
                     success = True
-                    messages = getmessages(conn, msg_body["token"], msg_body["chat_id"])
+                    messages = getmessages(
+                        conn,
+                        msg_body["token"],
+                        msg_body["chat_id"],
+                        msg_body["min_message_id"] if "min_message_id" in fields else 0,
+                    )
                     if messages == "423":
                         code = "423"
                         messages = ""
@@ -524,6 +607,13 @@ async def ws():
                     "status": code,
                 }
                 await websocket.send(str(new_msg_body))
+            elif mode == "checkConnection":
+                new_msg_body = {
+                    "mode": "checkConnection",
+                    "timestamp": get_current_date_str(),
+                    "status": "200",
+                }
+                await websocket.send(str(new_msg_body))
             else:
                 await websocket.send(
                     str({"mode": mode, "timestamp": None, "status": "501"})
@@ -534,7 +624,11 @@ async def ws():
             )
         except Exception as e:
             print(traceback.format_exc())
-            return abort(500)
+            await websocket.send(
+                str({"mode": "mode not specifed", "timestamp": None, "status": "501"})
+            )
+        finally:
+            conn.close()
 
 
 if __name__ == "__main__":

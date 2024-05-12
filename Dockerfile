@@ -10,5 +10,5 @@ RUN --mount=type=cache,target=C:/Windows/Temp \
 
 COPY . .
 
-# CMD [ "python", "app.py"]
-CMD [ "python", "server/ws_server/ws_server_tests.py"]
+CMD [ "python", "app.py"]
+# CMD [ "python", "server/ws_server/ws_server_tests.py"]

@@ -158,6 +158,9 @@ app.layout = dmc.MantineProvider(
                     dbc.Input(
                         placeholder="token", id="gc-token", style={"width": "200px"}
                     ),
+                    dbc.Input(
+                        placeholder="min_message_id", id="gc-min", style={"width": "200px"}, value=0
+                    ),
                     dbc.Button("Чаты", id="gc", style={"margin-left": "auto"}),
                 ],
                 w="100%",
@@ -440,16 +443,18 @@ def cpc(n_clicks, token, contact_value, contact_mode):
     Output("ws", "send", allow_duplicate=True),
     Input("gc", "n_clicks"),
     State("gc-token", "value"),
+    State("gc-min", 'value'),
     prevent_initial_call=True,
 )
-def gc(n_clicks, token):
-    if token == None:
+def gc(n_clicks, token, min_message_id):
+    if None in [min_message_id, token]:
         return "No data provided", no_update
     else:
         message_structure = {
             "mode": "getChats",
             "timestamp": get_current_date_str(),
             "token": token,
+            "min_message_id": min_message_id
         }
         return no_update, str(message_structure)
 
