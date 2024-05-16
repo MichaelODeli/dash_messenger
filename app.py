@@ -14,6 +14,8 @@ from dash import (
 )
 import dash_mantine_components as dmc
 import dash_bootstrap_components as dbc
+from dash_extensions import WebSocket
+from flask import request as flask_request
 
 #
 # app config
@@ -45,6 +47,7 @@ temp_buttons = dmc.Group(
             className="btn btn-primary btn-sm",
             href="/account/manage",
         ),
+        dbc.Button("Выход", size="sm", id="header-btn-logout"),
     ],
     pr="10px",
 )
@@ -114,6 +117,17 @@ header = dbc.Navbar(
 
 main_container = dmc.Grid(
     [
+        dcc.Store(id="token-store", storage_type="local"),
+        WebSocket(url=f"ws://192.168.3.36:5000/ws", id="ws"),
+        dcc.Interval(
+            id="load_interval",
+            n_intervals=0,
+            max_intervals=0,  # <-- only run once
+            interval=1,
+        ),
+        html.Div(id="hidden_div_for_redirect_callback"),
+        html.Div(id="hidden_div_for_redirect_callback_logout"),
+
         dmc.GridCol(span=1, className="adaptive-hide"),
         dmc.GridCol(
             dash.page_container,
@@ -143,6 +157,28 @@ app.layout = dmc.MantineProvider(
 )
 
 
+# update websocket server ip
+@app.callback([Output("ws", "url"), Input("load_interval", "n_intervals")])
+def url_update(n_intervals):
+    hostname = flask_request.headers.get("Host").split(":")[0]
+    return [f"ws://{hostname}:5000/ws"]
+
+
+@app.callback(
+    Output("hidden_div_for_redirect_callback", "children"),
+    Input("ws", "state"),
+    prevent_initial_call=True,
+)
+def ws_error_handle(ws_state):
+    if ws_state == None:
+        return no_update
+
+    if ws_state["readyState"] == 3:
+        return dcc.Location(pathname="/503", id="someid_doesnt_matter")
+    else:
+        return no_update
+
+
 # add callback for toggling the collapse on small screens
 @app.callback(
     Output("navbar-collapse", "is_open"),
@@ -160,6 +196,32 @@ def toggle_navbar_collapse(n, is_open):
 )
 def make_mantine_theme(value):
     return "dark" if value == False else "light"
+
+
+@callback(
+    Output("hidden_div_for_redirect_callback_logout", "children"),
+    Output("token-store", "data", allow_duplicate=True),
+    Output("ws", "send", allow_duplicate=True),
+    Input("header-btn-logout", "n_clicks"),
+    State("token-store", "data"),
+    prevent_initial_call=True,
+)
+def preform_logout(n_clicks, token):
+    print('logout trigger')
+    if token != None:
+        message_structure = str({
+            "mode": "logout",
+            "timestamp": "None",
+            "token": token,
+        })
+    else:
+        message_structure = no_update
+
+    return (
+        dcc.Location(pathname="/", id="someid_doesnt_matter_logout"),
+        None,
+        message_structure,
+    )
 
 
 clientside_callback(

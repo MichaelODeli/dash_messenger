@@ -18,7 +18,6 @@ import dash_mantine_components as dmc
 import dash_bootstrap_components as dbc
 from dash_iconify import DashIconify
 from dash_extensions import DeferScript
-import random
 from pages.messenger import im_modals
 
 register_page(
@@ -141,6 +140,7 @@ def layout():
                             color="primary",
                             outline=True,
                             id="messenger-btn-add_contact",
+                            disabled=True
                         ),
                     ],
                     vertical=True,
@@ -164,6 +164,7 @@ def layout():
                         span="content",
                     ),
                 ],
+                className='adaptive-hide'
             ),
             dmc.ScrollArea(
                 dbc.Table(
@@ -217,7 +218,6 @@ def layout():
                         dmc.TabsPanel(
                             dmc.Stack(
                                 [
-                                    # html.H5("Стикеры", className='text-center pb-2'),
                                     html.Div(
                                         dbc.Table(
                                             [
@@ -326,7 +326,7 @@ def layout():
                         placeholder="Cообщение", id="messenger-input-message_text"
                     ),
                     attachment_bar,
-                    dbc.Button(get_icon("mdi:send", width=20), id="messenger-btn-send"),
+                    dbc.Button(get_icon("mdi:send", width=20), id="messenger-btn-send", disabled=True),
                 ],
             ),
             dbc.Button(
@@ -371,6 +371,7 @@ def layout():
                             color="danger",
                             outline=True,
                             id="messenger-btn-delete_chat",
+                            disabled=True
                         ),
                         dbc.Button(
                             "Заблокировать",
@@ -481,7 +482,7 @@ def layout():
                     gap=0,
                 ),
                 title=html.H5("Список контактов"),
-                id="messenger-messenger-drawer-contacts",
+                id="messenger-drawer-contacts",
                 padding="md",
                 zIndex=10,
                 size="90%",
@@ -532,6 +533,7 @@ def click_handle(n_clicks):
     prevent_initial_call=True,
 )
 def drawer_contacts(n_clicks):
+    print(';toggled')
     return True
 
 # modal callbacks

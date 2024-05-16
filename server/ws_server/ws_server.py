@@ -1,4 +1,4 @@
-from quart import websocket, Quart, abort
+from quart import websocket, Quart, abort, request
 import ast
 import datetime
 import psycopg2
@@ -6,6 +6,7 @@ from psycopg2.errorcodes import UNIQUE_VIOLATION, FOREIGN_KEY_VIOLATION
 import uuid
 import traceback
 import os
+import asyncio
 
 """
 Используемые функции
@@ -348,6 +349,7 @@ def fileds_check(msg_dict, fields_list=None):
     "Проверка наличия необходимых полей для работы. В случае отсутствия - будет возвращен HTTP 422"
     if type(msg_dict) != dict:
         return_msg = {
+            "mode": "None",
             "timestamp": get_current_date_str(),
             "status": "422",
             "error_msg": "Unsupported data",
@@ -355,12 +357,14 @@ def fileds_check(msg_dict, fields_list=None):
     else:
         if ["mode", "timestamp"] not in list(msg_dict.keys()):
             return_msg = {
+                "mode": "None",
                 "timestamp": get_current_date_str(),
                 "status": "422",
                 "error_msg": "method or timestamp not provided",
             }
         elif fields_list not in list(msg_dict.keys()) and fields_list != None:
             return_msg = {
+                "mode": "None",
                 "timestamp": get_current_date_str(),
                 "status": "422",
                 "error_msg": f'field(s) {", ".join(fields_list)} not provided',
@@ -435,6 +439,7 @@ async def ws():
     while True:
         try:
             msg = await websocket.receive()
+            print("in", msg)
             conn = db_connector()  # подключаемся к БД
             msg_body = ast.literal_eval(msg)
             if fileds_check(msg_body) != None:
@@ -608,10 +613,16 @@ async def ws():
                 }
                 await websocket.send(str(new_msg_body))
             elif mode == "checkConnection":
+                if fileds_check(msg_body, ["token"]) != None:
+                    await websocket.send(str(fileds_check(msg_body, ["token"])))
+                if token_validation(conn, msg_body["token"]):
+                    success = True
+                else:
+                    success = False
                 new_msg_body = {
                     "mode": "checkConnection",
                     "timestamp": get_current_date_str(),
-                    "status": "200",
+                    "status": "200" if success else "401",
                 }
                 await websocket.send(str(new_msg_body))
             else:
@@ -622,13 +633,31 @@ async def ws():
             await websocket.send(
                 str({"mode": mode, "timestamp": None, "status": "403"})
             )
+        except asyncio.CancelledError:
+            # Handle disconnection here
+            raise
         except Exception as e:
             print(traceback.format_exc())
             await websocket.send(
                 str({"mode": "mode not specifed", "timestamp": None, "status": "501"})
             )
-        finally:
-            conn.close()
+
+
+@app.route("/api")
+async def http():
+    data = await request.get_json()
+    if (
+        "Authorization" in request.headers
+        and "Sec-Fetch-Mode" in request.headers
+    ):
+        conn = db_connector()  # подключаемся к БД
+        token = request.headers["Authorization"]
+        if token_validation(conn, token):
+            return 'True', 200
+        else:
+            return 'False', 200        
+    else:
+        return "No data", 503
 
 
 if __name__ == "__main__":
