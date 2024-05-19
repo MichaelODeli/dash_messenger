@@ -43,3 +43,29 @@
 .background-0 {
     background-color: transparent !important;
 }
+
+.table {
+    box-shadow: unset !important;
+}
+
+.messenger-screen-size {
+    height: 80dvh;
+}
+
+.messenger-full-screen-size {
+    width: 100%;
+    max-height: 96dvh;
+    overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    .messenger-screen-size {
+        height: 77dvh;
+    }
+    
+    .messenger-full-screen-size {
+        width: 100%;
+        max-height: 92dvh;
+        overflow: hidden;
+    }
+}

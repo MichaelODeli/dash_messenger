@@ -1,6 +1,6 @@
 "Домашняя страница."
 "Если пользователь не авторизован - показываем форму авторизации"
-"Если пользователь авторизован - перенаправляем его на страницу '/messenger/im'"
+"Если пользователь авторизован - перенаправляем его на страницу '/im'"
 
 from dash import (
     dcc,
@@ -18,6 +18,7 @@ from dash import (
 import dash_mantine_components as dmc
 import dash_bootstrap_components as dbc
 from controllers.utils import get_current_date_str
+from controllers.token_validation import token_verify_controller
 from flask import request as flask_request
 import ast
 import requests
@@ -27,7 +28,7 @@ register_page(__name__, path="/", icon="fa-solid:home", name="Главная | D
 
 
 def layout():
-    print("------- loaded home page -------")
+
     secret_fields = html.Div(
         [
             html.Div(id="hidden_div_for_redirect_callback_auth"),
@@ -183,6 +184,7 @@ def layout():
         # pt="10vh",
     )
 
+token_verify_controller('auth')
 
 # auth - send data
 @callback(
@@ -243,30 +245,30 @@ def read_auth_data(message):
             return [no_update] * 5
 
 
-# redirector if token in store and if token valid
-@callback(
-    Output("hidden_div_for_redirect_callback_auth", "children"),
-    Output("header-btn-logout", "style"),
-    Input("load_interval_auth", "n_intervals"),
-    State("token-store", "data"),
-    running=[
-        (Output("loading-overlay", "visible"), True, False),
-    ],
-)
-def redirector(n_intervals, token):
-    hostname = flask_request.headers.get("Host").split(":")[0]
-    print("stored token", token)
-    if token != None:
-        response = requests.get(
-            f"http://{hostname}:5000/api",
-            headers={"Authorization": token, "Sec-Fetch-Mode": "token_validation"},
-        )
-        token_test_result = response.content.decode("utf-8")
-        if token_test_result == "True":
-            print("user redirected to messenger page")
-            return dcc.Location(pathname="/im", id="someid_doesnt_matter_auth"), None
-        else:
-            print("user redirected to home page (invalid stored token)")
-            return no_update, None
-    else:
-        return no_update, no_update
+# # redirector if token in store and if token valid
+# @callback(
+#     Output("hidden_div_for_redirect_callback_auth", "children"),
+#     Input("load_interval_auth", "n_intervals"),
+#     State("token-store", "data"),
+#     running=[
+#         (Output("loading-overlay", "visible"), True, False),
+#     ],
+# )
+# def redirector(n_intervals, token):
+#     hostname = flask_request.headers.get("Host").split(":")[0]
+#     print("stored token", token)
+#     if token != None:
+#         response = requests.get(
+#             f"http://{hostname}:5000/api",
+#             headers={"Authorization": token, "Sec-Fetch-Mode": "token_validation"},
+#         )
+#         token_test_result = response.content.decode("utf-8")
+#         if token_test_result == "True":
+#             print("user redirected to messenger page")
+#             return dcc.Location(pathname="/im", id="someid_doesnt_matter_auth")
+#         else:
+#             print("user redirected to home page (invalid stored token)")
+#             return no_update
+#     else:
+#         return no_update, no_update
+

@@ -5,7 +5,7 @@ $(document).ready(function () {
 
     $("#downClick").on("click", function () {
 
-        $(".msg_table>.mantine-ScrollArea-viewport").animate({
+        $(".scroll-area").animate({
             scrollTop: 9999999
         });
 
@@ -15,7 +15,7 @@ $(document).ready(function () {
     $("#upClick").on("click", function () {
         scrolled = scrolled - 300;
 
-        $(".msg_table>.mantine-ScrollArea-viewport").animate({
+        $(".scroll-area").animate({
             scrollTop: scrolled
         });
 

@@ -1,16 +1,37 @@
 @media (max-width: 768px) {
-    .adaptive-hide {
-        display: none !important;
-    }
-    .adaptive-width {
-        min-width: 100%;
-        margin: auto;
-        flex-basis: auto;
-    }
-    .adaptive-input-width {
-        width: 99% !important;
-    }
+  .adaptive-hide {
+    display: none !important;
+  }
+
+  .adaptive-width {
+    min-width: 100%;
+    margin: auto;
+    flex-basis: auto;
+  }
+
+  .adaptive-input-width {
+    width: 99% !important;
+  }
 }
+
+@media (max-width: 1500px) {
+  .adaptive-width-col {
+    width: 20vw !important;
+  }
+}
+
+@media (max-width: 1200px) {
+  .adaptive-width-col {
+    width: 23vw !important;
+  }
+}
+
+@media (max-width: 1000px) {
+  .adaptive-width-col {
+    width: 30vw !important;
+  }
+}
+
 
 @media (min-width: 768px) {
   .adaptive-show {
@@ -19,24 +40,24 @@
 }
 
 .boxx {
-    display: flex;
-    flex-flow: column;
-    height: 100%;
-    width: 100%;
-  }
-  
-  .boxx .roww.fit-content {
-    flex: 0 1 auto;
-    width: 100%;
-  }
-  
-  .boxx .roww.fill-remain {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-    width: 100%;
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+  width: 100%;
+}
 
-    overflow-y: auto;
-  }
+.boxx .roww.fit-content {
+  flex: 0 1 auto;
+  width: 100%;
+}
+
+.boxx .roww.fill-remain {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  width: 100%;
+
+  overflow-y: auto;
+}

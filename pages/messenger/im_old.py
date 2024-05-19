@@ -17,24 +17,20 @@ from dash import (
 import dash_mantine_components as dmc
 import dash_bootstrap_components as dbc
 from dash_iconify import DashIconify
-from dash_extensions import DeferScript, Purify
+from dash_extensions import DeferScript
 from pages.messenger import im_modals
 from controllers.token_validation import token_verify_controller
 
-register_page(
-    __name__,
-    path="/im",
-    icon="fa-solid:home",
-    name="Dash Messenger",
-)
+# register_page(
+#     __name__,
+#     path="/im",
+#     icon="fa-solid:home",
+#     name="Dash Messenger",
+# )
 
 
 def get_icon(icon_name, width, style=None):
     return DashIconify(icon=icon_name, width=width, style=style)
-
-
-contact_global_classes = "tr-hover border-bottom w-100 leftside-msg"
-contact_global_classes_active = " selected-tr"
 
 
 def get_leftside_contacts(
@@ -44,12 +40,8 @@ def get_leftside_contacts(
     msg_time="00:00",
     active=False,
     user_icon="/assets/user_icon.png",
-    from_drawer=False,
 ):
-    global contact_global_classes
-    global contact_global_classes_active
-
-    active_background = contact_global_classes_active if active else ""
+    active_background = " selected-tr" if active else ""
     return html.Tr(
         [
             html.Td(html.Img(src=user_icon, className="transp-back user-icon")),
@@ -66,9 +58,9 @@ def get_leftside_contacts(
                 className="w-100",
             ),
         ],
-        className=contact_global_classes + active_background,
+        className="tr-hover border-bottom w-100 leftside-msg" + active_background,
         style={"margin": "10px"},
-        id={"type": f"contacts-tab{'-drawer' if from_drawer else ''}", "index": index},
+        id={"type": f"contacts-tab", "index": index},
     )
 
 
@@ -110,6 +102,8 @@ def get_message_tr(
 
 
 def layout():
+    secret_fields = []
+
     modals = html.Div(
         [im_modals.messenger_modal_addcontact(), im_modals.messenger_modal_deletechat()]
     )
@@ -155,6 +149,60 @@ def layout():
                 ),
             ),
         ],
+    )
+
+    contacts = dmc.Stack(
+        [
+            dmc.Grid(
+                [
+                    dmc.GridCol(
+                        html.H5("Список чатов", className="text-center"), span="auto"
+                    ),
+                    dmc.GridCol(
+                        [
+                            chats_threedots_menu,
+                        ],
+                        span="content",
+                    ),
+                ],
+                className="adaptive-hide",
+            ),
+            dmc.ScrollArea(
+                dbc.Table(
+                    [
+                        get_leftside_contacts(
+                            "MotherOfGod", "Иди кушать уже", active=True, index=0
+                        )
+                    ]
+                    + [
+                        get_leftside_contacts(
+                            f"SuperDuper{i}23", "Ну как там с деньгами?", index=i+1
+                        )
+                        for i in range(20)
+                    ],
+                    # [
+                    #     dmc.Stack(
+                    #         "Hello!",
+                    #         className="w-100 border-top",
+                    #         style={"min-width": "100%", "margin": "auto"},
+                    #         align='center'
+                    #     )
+                    # ],
+                    className="w-100 pe-1 mb-0",
+                    hover=True,
+                    id="messenger-table-contacts",
+                ),
+                mah="100%",
+                type="auto",
+                m="auto",
+                w="100%",
+                offsetScrollbars=True,
+                className="dynamic-scroll-height border-start border-top",
+            ),
+        ],
+        w="100%",
+        m="auto",
+        gap=0,
     )
 
     attachment_bar = dmc.HoverCard(
@@ -303,7 +351,6 @@ def layout():
             ),
         ],
         style={"flex-wrap": "nowrap"},
-        className="p-2",
     )
 
     msg_threedots_menu = dmc.HoverCard(
@@ -356,42 +403,101 @@ def layout():
         ],
     )
 
-    contacts_drawer = dbc.Table(
+    messages = dmc.Stack(
         [
-            get_leftside_contacts(
-                "MotherOfGod", "Иди кушать уже", active=True, index=0, from_drawer=True
-            )
-        ]
-        + [
-            get_leftside_contacts(
-                f"SuperDuper_{i+1}",
-                "Ну как там с деньгами?",
-                index=i + 1,
-                from_drawer=True,
-            )
-            for i in range(20)
-        ]
+            html.Div(
+                dmc.Grid(
+                    [
+                        dmc.GridCol(
+                            dbc.Button(
+                                get_icon(
+                                    icon_name="material-symbols:menu-rounded",
+                                    width=25,
+                                ),
+                                outline=True,
+                                color="primary",
+                                id="messenger-btn-open_contacts_drawer",
+                                class_name="p-1",
+                            ),
+                            span="content",
+                            className="adaptive-show",
+                        ),
+                        dmc.GridCol(
+                            dmc.Group(
+                                [
+                                    html.Img(
+                                        src="/assets/user_icon.png",
+                                        className="transp-back user-icon",
+                                        style={"height": "32px"},
+                                        id="messenger-img-chat_partner",
+                                    ),
+                                    html.H5(
+                                        "MotherOfGod",
+                                        className="m-0",
+                                        id="messenger-text-chat_partner_nickname",
+                                    ),
+                                ]
+                            ),
+                            span="auto",
+                            className="ms-2",
+                        ),
+                        dmc.GridCol(
+                            [
+                                msg_threedots_menu,
+                            ],
+                            span="content",
+                        ),
+                    ],
+                    gutter="xs",
+                ),
+                className="w-100 roww fit-content border rounded-top-1",
+            ),
+            html.Div(
+                dmc.ScrollArea(
+                    [
+                        dmc.Table(
+                            [
+                                get_message_tr(
+                                    "MotherOfGod", html.P("Иди кушать уже!")
+                                ),
+                                get_message_tr("Вы", html.P("Да щас, иду уже!")),
+                            ]
+                            * 15,
+                            className="w-100 pe-1 mb-0 cover",
+                            highlightOnHover=True,
+                            striped=False,
+                            id="messenger-table-messages",
+                        )
+                    ],
+                    type="auto",
+                    offsetScrollbars=True,
+                    className="h-100 w-100 msg_table",
+                ),
+                className="w-100 roww fill-remain border border-top-0 rounded-bottom-1 mb-2",
+            ),
+            html.Div(
+                text_input_bar,
+                className="w-100 roww fit-content",
+            ),
+        ],
+        w="100%",
+        className="boxx",
+        gap=0,
     )
 
-    contacts = dbc.Table(
-        [get_leftside_contacts("MotherOfGod", "Иди кушать уже", active=True, index=0)]
-        + [
-            get_leftside_contacts(
-                f"SuperDuper_{i+1}",
-                "Ну как там с деньгами?",
-                index=i + 1,
-            )
-            for i in range(20)
-        ]
-    )
-
-    return dbc.Table(
+    return dmc.Stack(
         [
-            modals,
+            html.Div(id="hidden_div_for_redirect_callback_im"),
+            dcc.Interval(
+                id="load_interval_im",
+                n_intervals=0,
+                max_intervals=0,  # <-- only run once
+                interval=2,
+            ),
             dmc.Drawer(
                 dmc.Stack(
                     [
-                        contacts_drawer,
+                        contacts,
                     ],
                     className="w-100",
                     gap=0,
@@ -402,181 +508,60 @@ def layout():
                 zIndex=10,
                 size="90%",
             ),
-            html.Thead(
-                html.Tr(
-                    [
-                        html.Th(
-                            dmc.Group(
-                                [
-                                    dbc.Input(
-                                        placeholder="Поиск",
-                                        style={"width": "12vw"},
-                                        disabled=True,
-                                    ),
-                                    chats_threedots_menu,
-                                ],
-                                style={"width": "16vw"},
-                                className="m-auto ps-2 adaptive-width-col",
-                            ),
-                            className="adaptive-hide border-start border-top",
-                            style={"text-align": "center", "vertical-align": "middle"},
-                        ),
-                        html.Th(
-                            [
-                                dmc.Grid(
-                                    [
-                                        dmc.GridCol(
-                                            dbc.Button(
-                                                get_icon(
-                                                    icon_name="material-symbols:menu-rounded",
-                                                    width=25,
-                                                ),
-                                                outline=True,
-                                                color="primary",
-                                                id="messenger-btn-open_contacts_drawer",
-                                                class_name="p-1",
-                                            ),
-                                            span="content",
-                                            className="adaptive-show",
-                                        ),
-                                        dmc.GridCol("MotherOfGod", span="auto"),
-                                        dmc.GridCol(msg_threedots_menu, span="content"),
-                                    ]
-                                )
-                            ],
-                            style={"width": "100%"},
-                            className="text-center border border-bottom-0",
-                        ),
-                    ]
-                )
-            ),
-            html.Tbody(
+            dmc.Grid(
                 [
-                    html.Tr(
-                        [
-                            html.Td(
-                                html.Div(
-                                    contacts,
-                                    style={"height": "100%", "overflow-y": "auto"},
-                                ),
-                                className="adaptive-hide border-top border-start messenger-screen-size",
-                            ),
-                            html.Td(
-                                html.Div(
-                                    dmc.Table(
-                                        [
-                                            get_message_tr(
-                                                "MotherOfGod", html.P("Иди кушать уже!")
-                                            ),
-                                            get_message_tr(
-                                                "Вы", html.P("Да щас, иду уже!")
-                                            ),
-                                        ]
-                                        * 15,
-                                        className="w-100 pe-1 mb-0 cover",
-                                        highlightOnHover=True,
-                                        striped=False,
-                                        id="messenger-table-messages",
-                                    ),
-                                    style={"height": "100%", "overflow-y": "auto"},
-                                    className="scroll-area",
-                                ),
-                                className="border border-bottom-0 messenger-screen-size",
-                            ),
-                        ]
+                    dmc.GridCol(
+                        contacts,
+                        span=3,
+                        mih="100%",
+                        p=0,
+                        className="d-flex adaptive-hide",
                     ),
-                    html.Tr(
-                        [
-                            html.Td(
-                                dbc.Button(
-                                    "Показать непрочитанные",
-                                    class_name="btn btn-link",
-                                    outline=True,
-                                    disabled=True,
-                                ),
-                                className="adaptive-hide border",
-                                style={"vertical-align": "middle"},
-                            ),
-                            html.Td(text_input_bar, className="border border-start-0"),
-                        ]
+                    dmc.GridCol(
+                        messages,
+                        span=9,
+                        style={
+                            "margin-bottom": "auto !important",
+                        },
+                        h="88dvh",  # DO NOT CHANGE!!! Breaks phone width
+                        className="adaptive-width mt-0 p-0 mb-auto",
                     ),
-                ]
+                ],
+                w="100%",
+                h="100%",
+                m="auto",
             ),
+            modals,
         ],
-        className="mt-2 mb-0 table-borderless messenger-full-screen-size",
+        miw="100%",
+        h="100%",
+        justify="center",
     )
 
 
-@callback(
-    Output("messenger-drawer-contacts", "opened", allow_duplicate=True),
-    Input("messenger-btn-open_contacts_drawer", "n_clicks"),
-    prevent_initial_call=True,
-)
-def drawer_contacts(n_clicks):
-    return True
+# @callback(
+#     Output("MotherOfGod", "n_clicks"),
+#     Input("MotherOfGod", "n_clicks"),
+#     prevent_inital_call=True,
+# )
+# def click_handle(n_clicks):
+#     # print('Clicked on row')
+#     return 0
 
 
-@callback(
-    Output({"type": "contacts-tab", "index": ALL}, "n_clicks"),
-    Output({"type": "contacts-tab-drawer", "index": ALL}, "n_clicks"),
-    Output({"type": "contacts-tab", "index": ALL}, "className"),
-    Output({"type": "contacts-tab-drawer", "index": ALL}, "className"),
-    Output("messenger-drawer-contacts", "opened"),
-    Input({"type": "contacts-tab", "index": ALL}, "n_clicks"),
-    Input({"type": "contacts-tab-drawer", "index": ALL}, "n_clicks"),
-    prevent_inital_call=True,
-)
-def click_handle(n_clicks, n_clicks_drawer):
-    global contact_global_classes
-    global contact_global_classes_active
-
-    from_drawer = False
-    # work with desktop contacts tab
-    if n_clicks == [None] * len(n_clicks):
-        return_n_clicks = [no_update] * len(n_clicks)
-        return_n_clicks_classname = [no_update] * len(n_clicks)
-    else:
-        print(f"Clicked on item {n_clicks.index(1)}")
-        return_n_clicks = [None] * len(n_clicks)
-        return_n_clicks_classname = [
-            (
-                contact_global_classes + contact_global_classes_active
-                if i == 1
-                else contact_global_classes
-            )
-            for i in n_clicks
-        ]
-
-    # work with mobile drawer contacts tab
-    if n_clicks_drawer == [None] * len(n_clicks_drawer):
-        return_n_clicks_drawer = [no_update] * len(n_clicks_drawer)
-        return_n_clicks_drawer_classname = [no_update] * len(n_clicks_drawer)
-    else:
-        print(f"drawer Clicked on item {n_clicks_drawer.index(1)}")
-        return_n_clicks_drawer = [None] * len(n_clicks_drawer)
-        return_n_clicks_drawer_classname = [
-            (
-                contact_global_classes + contact_global_classes_active
-                if i == 1
-                else contact_global_classes
-            )
-            for i in n_clicks_drawer
-        ]
-        from_drawer = True
-
-    return (
-        return_n_clicks,
-        return_n_clicks_drawer,
-        return_n_clicks_classname,
-        return_n_clicks_drawer_classname,
-        False if from_drawer else no_update
-    )
+# @callback(
+#     Output("messenger-drawer-contacts", "opened"),
+#     Input("messenger-btn-open_contacts_drawer", "n_clicks"),
+#     prevent_initial_call=True,
+# )
+# def drawer_contacts(n_clicks):
+#     print(";toggled")
+#     return True
 
 
+# # modal callbacks
+# im_modals.messenger_modal_addcontact_callback()
+# im_modals.messenger_modal_deletechat_callback()
 
-# modal callbacks
-im_modals.messenger_modal_addcontact_callback()
-im_modals.messenger_modal_deletechat_callback()
-
-# auth token verify
-token_verify_controller("im", from_im=True)
+# # auth token verify
+# token_verify_controller("im", from_im=True)

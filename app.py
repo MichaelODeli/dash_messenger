@@ -111,7 +111,7 @@ header = dbc.Navbar(
     ),
     color="dark",
     dark=True,
-    style={"width": "100%"},
+    style={"width": "100%", 'position': 'absolute'},
     className="border-bottom roww fit-content",
 )
 
@@ -140,7 +140,7 @@ main_container = dmc.Grid(
     align="center",
     className="roww fill-remain",
     h="100%",
-    p="0",
+    pt="3rem",
 )
 
 
